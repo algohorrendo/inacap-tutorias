@@ -14,7 +14,7 @@ python manage.py migrate
 
 # Crear superusuario admin y poblar base de datos
 python manage.py shell << EOF
-from main.models import Usuario, Tutor, Asignatura, DisponibilidadTutor, SesionTutoria, Recurso
+from main.models import Usuario, Tutor, Asignatura, DisponibilidadTutor, SesionTutoria, RecursoEducativo
 from django.utils import timezone
 from datetime import timedelta
 import random
@@ -181,7 +181,7 @@ recursos_data = [
 for titulo, tipo, asig_nombre in recursos_data:
     asig = Asignatura.objects.filter(nombre=asig_nombre).first()
     tutor = random.choice(tutores)
-    Recurso.objects.get_or_create(
+    RecursoEducativo.objects.get_or_create(
         titulo=titulo,
         defaults={
             'tipo': tipo,
@@ -191,7 +191,7 @@ for titulo, tipo, asig_nombre in recursos_data:
             'descargas': random.randint(5, 50)
         }
     )
-print(f'✅ {Recurso.objects.count()} recursos creados')
+print(f'✅ {RecursoEducativo.objects.count()} recursos creados')
 
 print('')
 print('=' * 50)
