@@ -1,0 +1,64 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block title %}Mis Sesiones{% endblock %}
+{% block content %}
+<h1>Mis Sesiones de Tutoría</h1>
+
+<!-- Sesiones Pendientes -->
+<section class="sesiones-section">
+  <h2>⏳ Solicitudes Pendientes ({{ sesiones_pendientes.count }})</h2>
+  {% if sesiones_pendientes %}
+    <div class="sesiones-grid">
+      {% for sesion in sesiones_pendientes %}
+      <div class="sesion-card pendiente">
+        <div class="sesion-header">
+          <h3>{{ sesion.tutor.usuario.get_full_name }}</h3>
+          <span class="badge badge-pending">Esperando respuesta</span>
+        </div>
+        <div class="sesion-body">
+          <p><strong>Asignatura:</strong> {{ sesion.asignatura.nombre }}</p>
+          <p><strong>Fecha solicitada:</strong> {{ sesion.fecha_programada|date:"d/m/Y H:i" }}</p>
+          <p><strong>Modalidad:</strong> {{ sesion.modalidad }}</p>
+          <p><strong>Tema:</strong> {{ sesion.tema_solicitud }}</p>
+          <p><strong>Especialidad del tutor:</strong> {{ sesion.tutor.especialidades|default:"No especificada" }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="sin-contenido">No tienes solicitudes pendientes.</p>
+  {% endif %}
+</section>
+
+<!-- Sesiones Próximas Aceptadas -->
+<section class="sesiones-section">
+  <h2>Sesiones Próximas ({{ sesiones_futuras.count }})</h2>
+  {% if sesiones_futuras %}
+    <div class="sesiones-grid">
+      {% for sesion in sesiones_futuras %}
+      <div class="sesion-card aceptada">
+        <div class="sesion-header">
+          <h3>{{ sesion.tutor.usuario.get_full_name }}</h3>
+          <span class="badge badge-accepted">Confirmada</span>
+        </div>
+        <div class="sesion-body">
+          <p><strong>Asignatura:</strong> {{ sesion.asignatura.nombre }}</p>
+          <p><strong>Fecha:</strong> {{ sesion.fecha_programada|date:"d/m/Y H:i" }}</p>
+          <p><strong>Modalidad:</strong> {{ sesion.modalidad }}</p>
+          <p><strong>Duración:</strong> {{ sesion.duracion_minutos }} minutos</p>
+          <p><strong>Tutor:</strong> {{ sesion.tutor.usuario.get_full_name }} ({{ sesion.tutor.nivel }})</p>
+          
+
+          <a href="{% url 'chat' sesion.id %}" class="btn btn-primary">Chatear</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="sin-contenido">No tienes sesiones confirmadas próximas. <a href="{% url 'buscar_tutor' %}">Busca un tutor</a></p>
+  {% endif %}
+</section>
+
+
+
+{% endblock %}

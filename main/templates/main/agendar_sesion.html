@@ -1,0 +1,52 @@
+{% extends 'main/base.html' %}
+{% block title %}Agendar Sesión{% endblock %}
+{% block content %}
+<div class="agendar-container">
+  <h1>Agendar Sesión con {{ tutor.usuario.get_full_name }}</h1>
+
+  <div class="tutor-info">
+    <p><strong>Nivel:</strong> {{ tutor.nivel }}</p>
+  </div>
+
+  <form method="post" class="formulario-agendar">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div class="form-group">
+      <label for="{{ form.asignatura.id_for_label }}">Asignatura</label>
+      {{ form.asignatura }}
+      {{ form.asignatura.errors }}
+    </div>
+
+    <div class="form-group">
+      <label for="{{ form.hora_disponible.id_for_label }}">Horario disponible</label>
+      {{ form.hora_disponible }}
+      {{ form.hora_disponible.errors }}
+    </div>
+
+    <div class="form-group">
+      <label for="{{ form.modalidad.id_for_label }}">Modalidad</label>
+      <div class="radio-group">
+        {% for value, label in form.modalidad.field.choices %}
+          <label class="radio-label">
+            <input type="radio" name="modalidad" value="{{ value }}" {% if form.modalidad.value == value %}checked{% endif %}>
+            {{ label }}
+          </label>
+        {% endfor %}
+      </div>
+      {{ form.modalidad.errors }}
+    </div>
+
+    <div class="form-group">
+      <label for="{{ form.tema_solicitud.id_for_label }}">Tema de la sesión</label>
+      {{ form.tema_solicitud }}
+      {{ form.tema_solicitud.errors }}
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Agendar sesión</button>
+      <a href="{% url 'perfil_tutor' tutor.id %}" class="btn btn-secondary">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

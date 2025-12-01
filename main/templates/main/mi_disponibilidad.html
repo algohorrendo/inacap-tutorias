@@ -1,0 +1,81 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+<h2>Mi Disponibilidad como Tutor</h2>
+
+<form id="horarioForm" method="POST">
+  {% csrf_token %}
+  <table id="tablaHorario">
+    <thead>
+      <tr>
+        <th>Hora</th>
+        <th>Lunes</th>
+        <th>Martes</th>
+        <th>Miércoles</th>
+        <th>Jueves</th>
+        <th>Viernes</th>
+        <th>Sábado</th>
+        <th>Domingo</th>
+      </tr>
+    </thead>
+    <tbody>
+  {% for h in horas %}
+  <tr>
+    <td>{{ h }}</td>
+    {% for d in dias %}
+      {% with '' as clase %}
+        {% for item in horarios_guardados %}
+          {% if item.dia == d and item.hora == h %}
+            {% with 'selected' as clase %}
+            {% endwith %}
+          {% endif %}
+        {% endfor %}
+      <td data-dia="{{ d }}" data-hora="{{ h }}" class="{{ clase }}"></td>
+      {% endwith %}
+    {% endfor %}
+  </tr>
+  {% endfor %}
+</tbody>
+
+  </table>
+  <button type="submit" class="btn">Guardar Disponibilidad</button>
+</form>
+
+<script>
+  // Añade clase "selected" cuando clickean en la celda
+document.querySelectorAll('#tablaHorario td[data-dia]').forEach(function(cell){
+  cell.addEventListener('click', function(){
+    this.classList.toggle('selected');
+  });
+});
+
+// Enviar datos al backend vía fetch (JSON)
+document.getElementById('horarioForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const cells = document.querySelectorAll('#tablaHorario td.selected');
+  const data = Array.from(cells).map(td => ({
+    dia: td.getAttribute('data-dia'),
+    hora: td.getAttribute('data-hora')
+  }));
+
+  fetch("{% url 'mi_disponibilidad' %}", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: JSON.stringify(data)
+  })
+  .then(response => response.json())  // PASO IMPORTANTE: Convertir a JSON
+  .then(resp => {
+    alert(resp.message);
+    
+  })
+  .catch(error => {
+    alert('Error en comunicación con el servidor: ' + error);
+  });
+});
+
+</script>
+
+{% endblock %}

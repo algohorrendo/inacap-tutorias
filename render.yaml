@@ -1,0 +1,23 @@
+# render.yaml - Configuración de despliegue para Render.com
+
+services:
+  - type: web
+    name: inacap-tutorias
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn inacap_tutorias.wsgi:application"
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: inacap-tutorias-db
+          property: connectionString
+
+databases:
+  - name: inacap-tutorias-db
+    databaseName: inacap_tutorias
+    user: inacap_user
+

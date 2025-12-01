@@ -1,0 +1,43 @@
+{% extends 'main/base.html' %}
+{% block title %}Perfil de Tutor{% endblock %}
+{% block content %}
+<div class="perfil-container">
+  <div class="perfil-header">
+    <h1>{{ tutor.usuario.get_full_name }}</h1>
+    <p class="nivel-badge">{{ tutor.nivel }}</p>
+  </div>
+
+ 
+
+    <div class="info-card">
+      <h3>Estadísticas</h3>
+      <p><strong>Sesiones:</strong> {{ tutor.total_sesiones }}</p>
+      <p><strong>Horas:</strong> {{ tutor.horas_acumuladas }}</p>
+    </div>
+
+    <div class="info-card">
+      <h3>Modalidad</h3>
+      <p>{{ tutor.modalidad_preferida }}</p>
+    </div>
+  </div>
+
+  {% if tutor.especialidades %}
+    <div class="card">
+      <h3>Especialidades</h3>
+      <p>{{ tutor.especialidades }}</p>
+    </div>
+  {% endif %}
+
+  {% if tutor.bio_descripcion %}
+    <div class="card">
+      <h3>Sobre el tutor</h3>
+      <p>{{ tutor.bio_descripcion }}</p>
+    </div>
+  {% endif %}
+
+  <div class="card acciones">
+    <a href="{% url 'agendar_sesion' tutor.id %}" class="btn btn-primary btn-lg">Agendar sesión</a>
+    <a href="{% url 'buscar_tutor' %}" class="btn btn-secondary">Volver</a>
+  </div>
+</div>
+{% endblock %}

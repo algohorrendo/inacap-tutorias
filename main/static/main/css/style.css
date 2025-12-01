@@ -1,0 +1,819 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+/* ============================================
+   ESTILOS GLOBALES
+   ============================================ */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Montserrat', Arial, sans-serif;
+  background: #f7f7fb;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+/* ============================================
+   MENÚ LATERAL
+   ============================================ */
+nav {
+  width: 220px;
+  min-height: 100vh;
+  background: #fff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  border-right: 1px solid #eee;
+  padding-top: 20px;
+  z-index: 100;
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+nav ul li {
+  margin-bottom: 18px;
+}
+
+nav ul li a {
+  text-decoration: none;
+  color: #111;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  border-radius: 30px;
+  transition: background 0.14s;
+}
+
+nav ul li a:hover {
+  background: #d8999b;
+  color: #e31e24;
+}
+
+nav .icon {
+  font-size: 1.3em;
+  margin-right: 12px;
+}
+
+/* ============================================
+   LAYOUT PRINCIPAL
+   ============================================ */
+main {
+  margin-left: 220px;
+  padding: 30px;
+  min-height: calc(100vh - 60px);
+}
+
+footer {
+  margin-left: 220px;
+  padding: 20px 30px;
+  background: #fff;
+  text-align: center;
+  border-top: 1px solid #eee;
+  color: #666;
+  font-size: 14px;
+}
+
+/* ============================================
+   TÍTULOS
+   ============================================ */
+h1, h2, h3 {
+  font-weight: 700;
+  margin-top: 0;
+}
+
+h1 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 28px;
+}
+
+h2 {
+  color: #333;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #e31e24;
+  padding-bottom: 10px;
+  font-size: 22px;
+}
+
+h3 {
+  font-size: 18px;
+  color: #333;
+}
+
+/* ============================================
+   BOTONES
+   ============================================ */
+.btn {
+  background: #e31e24;
+  color: white;
+  border-radius: 22px;
+  border: none;
+  padding: 10px 22px;
+  font-weight: 700;
+  box-shadow: 0 2px 3px #ccc;
+  cursor: pointer;
+  margin: 10px 5px 12px 0;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.btn:hover {
+  background: #bf1a1f;
+  transform: translateY(-2px);
+}
+
+.btn-primary {
+  background: #7f7fd5;
+}
+
+.btn-primary:hover {
+  background: #6b6bc0;
+}
+
+.btn-success {
+  background: #4caf50;
+}
+
+.btn-success:hover {
+  background: #45a049;
+}
+
+.btn-secondary {
+  background: #999;
+}
+
+.btn-secondary:hover {
+  background: #777;
+}
+
+.btn-danger {
+  background: #f44336;
+}
+
+.btn-danger:hover {
+  background: #da190b;
+}
+
+.btn-info {
+  background: #2196F3;
+}
+
+.btn-info:hover {
+  background: #0b7dda;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+  margin: 5px 2px;
+}
+
+.btn-enviar {
+  padding: 10px 20px;
+  background: #e31e24;
+  color: white;
+  border: none;
+  border-radius: 22px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.btn-enviar:hover {
+  background: #bf1a1f;
+}
+
+/* ============================================
+   CARDS Y CONTENEDORES
+   ============================================ */
+.card {
+  background: #fff;
+  border-radius: 16px;
+  margin: 20px 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+  padding: 22px 28px;
+  min-width: 230px;
+  max-width: 350px;
+}
+
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  justify-content: flex-start;
+}
+
+.info-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.info-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+  flex: 1 1 250px;
+}
+
+/* ============================================
+   HEADER Y AVATAR
+   ============================================ */
+.header {
+  background: linear-gradient(92deg, #7f7fd5 0%, #86a8e7 100%);
+  color: white;
+  border-radius: 12px;
+  padding: 20px 30px;
+  margin-bottom: 30px;
+  margin-top: 15px;
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.avatar img {
+  border-radius: 50%;
+  background: #eee;
+  width: 46px;
+  height: 46px;
+  margin-right: 12px;
+}
+
+/* ============================================
+   ÍCONOS CIRCULARES
+   ============================================ */
+.circ {
+  display: inline-flex;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #e31e24;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.3em;
+  margin-right: 10px;
+}
+
+/* ============================================
+   FORMULARIOS
+   ============================================ */
+form {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #e31e24;
+  box-shadow: 0 0 5px rgba(227, 30, 36, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-group .errorlist {
+  color: #f44336;
+  font-size: 12px;
+  margin-top: 5px;
+  list-style: none;
+  padding: 0;
+}
+
+.form-group .error {
+  color: #f44336;
+}
+
+.radio-group {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.radio-label input[type="radio"] {
+  margin-right: 8px;
+}
+
+/* ============================================
+   SESIONES
+   ============================================ */
+.sesion-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+  border-left: 5px solid #ddd;
+  transition: all 0.3s ease;
+}
+
+.sesion-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.sesion-card.pendiente {
+  border-left-color: #ff9800;
+  background: #fff8f0;
+}
+
+.sesion-card.aceptada {
+  border-left-color: #4caf50;
+  background: #f0f8f0;
+}
+
+.sesion-card.completada {
+  border-left-color: #2196F3;
+  background: #f0f7ff;
+}
+
+.sesion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.sesion-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 16px;
+}
+
+.sesion-body {
+  margin: 12px 0;
+  font-size: 13px;
+}
+
+.sesion-body p {
+  margin: 6px 0;
+  color: #555;
+}
+
+.sesion-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+/* ============================================
+   BADGES
+   ============================================ */
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.badge-pending {
+  background: #ff9800;
+  color: white;
+}
+
+.badge-accepted {
+  background: #4caf50;
+  color: white;
+}
+
+.badge-completed {
+  background: #2196F3;
+  color: white;
+}
+
+.badge-rejected {
+  background: #f44336;
+  color: white;
+}
+
+/* ============================================
+   CHAT
+   ============================================ */
+.chat-container {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+  margin: 20px 0;
+}
+
+.mensajes-box {
+  background: #f9f9fb;
+  border-radius: 8px;
+  padding: 15px;
+  height: 400px;
+  overflow-y: auto;
+  margin-bottom: 15px;
+  border: 1px solid #eee;
+}
+
+.mensaje {
+  margin-bottom: 15px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  word-wrap: break-word;
+  max-width: 80%;
+}
+
+.mensaje.propio {
+  background: #c8e6c9;
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.mensaje.ajeno {
+  background: #e3f2fd;
+  margin-right: auto;
+  margin-left: 0;
+}
+
+.mensaje-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  font-size: 11px;
+  color: #666;
+  font-weight: 600;
+}
+
+.mensaje-contenido {
+  color: #333;
+  line-height: 1.4;
+}
+
+.input-mensaje {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.input-mensaje textarea {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: 'Montserrat', Arial, sans-serif;
+  resize: vertical;
+  max-height: 120px;
+}
+
+/* ============================================
+   SISTEMA DE CALIFICACIONES
+   ============================================ */
+.calificacion-container {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+  text-align: center;
+  margin: 20px 0;
+}
+
+.calificacion-stars {
+  margin: 20px 0;
+}
+
+.stars {
+  font-size: 40px;
+  letter-spacing: 10px;
+  cursor: pointer;
+  display: inline-block;
+  margin: 15px 0;
+}
+
+.star {
+  color: #ddd;
+  transition: color 0.2s;
+  cursor: pointer;
+}
+
+.star:hover,
+.star.active {
+  color: #ff9800;
+}
+
+/* ============================================
+   TABLAS
+   ============================================ */
+.tabla-responsive {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+
+thead {
+  background: linear-gradient(90deg, #7f7fd5, #86a8e7);
+  color: white;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+tbody tr:hover {
+  background: #f9f9fb;
+}
+
+/* Tabla de horarios específica */
+#tablaHorario {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  font-size: 14px;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+#tablaHorario thead {
+  background: linear-gradient(90deg, #7f7fd5, #86a8e7);
+  color: white;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+#tablaHorario th, #tablaHorario td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+#tablaHorario tbody tr:nth-child(even) {
+  background: #f9f9fb;
+}
+
+#tablaHorario td {
+  cursor: pointer;
+  padding: 10px;
+  border: 1px solid #ddd;
+  transition: all 0.2s ease;
+}
+
+#tablaHorario td:hover {
+  background: #f0f4ff;
+}
+
+#tablaHorario td.selected {
+  background-color: #4caf50 !important;
+  color: white;
+  font-weight: bold;
+  border-radius: 6px;
+}
+
+/* ============================================
+   MODALES
+   ============================================ */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+  background-color: white;
+  margin: 10% auto;
+  padding: 30px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: #000;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  justify-content: center;
+}
+
+/* ============================================
+   MENSAJES Y UTILIDADES
+   ============================================ */
+.sin-contenido {
+  text-align: center;
+  color: #999;
+  padding: 40px 20px;
+  font-style: italic;
+  background: white;
+  border-radius: 12px;
+  margin: 20px 0;
+}
+
+.error {
+  color: #f44336;
+}
+
+.success {
+  color: #4caf50;
+}
+
+.mensaje-info {
+  padding: 15px;
+  background: #e3f2fd;
+  border-left: 4px solid #2196F3;
+  border-radius: 4px;
+  margin: 15px 0;
+  color: #1976d2;
+}
+
+.mensaje-error {
+  padding: 15px;
+  background: #ffebee;
+  border-left: 4px solid #f44336;
+  border-radius: 4px;
+  margin: 15px 0;
+  color: #c62828;
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+::-webkit-scrollbar {
+  width: 6px;
+  background: #fff;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background: #e31e24;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+  nav {
+    width: 180px;
+    padding-top: 15px;
+  }
+
+  nav ul li a {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  nav .icon {
+    font-size: 1.1em;
+    margin-right: 8px;
+  }
+
+  main {
+    margin-left: 180px;
+    padding: 20px;
+    min-height: calc(100vh - 60px);
+  }
+
+  footer {
+    margin-left: 180px;
+    padding: 15px 20px;
+  }
+
+  .card, .info-card {
+    max-width: 100%;
+    min-width: auto;
+    flex: 1 1 100%;
+  }
+
+  .cards {
+    justify-content: center;
+  }
+
+  .sesion-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .modal-content {
+    width: 95%;
+  }
+
+  table {
+    font-size: 12px;
+  }
+
+  th, td {
+    padding: 8px;
+  }
+
+  h1 {
+    font-size: 20px;
+  }
+
+  h2 {
+    font-size: 16px;
+  }
+
+  .stars {
+    font-size: 30px;
+    letter-spacing: 5px;
+  }
+
+  .mensaje {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  nav {
+    position: relative;
+    width: 100%;
+    min-height: auto;
+    border-right: none;
+    border-bottom: 1px solid #eee;
+  }
+
+  main {
+    margin-left: 0;
+    padding: 10px;
+  }
+
+  footer {
+    margin-left: 0;
+    width: 100%;
+    padding: 15px 10px;
+  }
+}

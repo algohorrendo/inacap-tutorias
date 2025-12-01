@@ -1,0 +1,16 @@
+{% extends 'main/base.html' %}
+{% block title %}Recursos{% endblock %}
+{% block content %}
+<h2>Recursos Educativos</h2>
+<a href="{% url 'crear_recurso' %}">Agregar Recurso</a>
+
+<ul>
+  {% for r in recursos %}
+    <li>
+      <a href="{{ r.archivo.url }}" download>{{ r.titulo }}</a> ({{ r.tipo }})
+    </li>
+  {% empty %}
+    <li>No hay recursos.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

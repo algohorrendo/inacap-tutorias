@@ -1,0 +1,30 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Bienvenido a INACAP Tutorías{% endblock %}
+
+{% block content %}
+<div class="welcome-container">
+    <div class="hero">
+        <h1>Bienvenido a INACAP Tutorías</h1>
+        <p class="subtitle">Encuentra el tutor perfecto para tus estudios</p>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <h3>{{ total_tutores }}</h3>
+                <p>Tutores Activos</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ total_sesiones }}</h3>
+                <p>Sesiones Completadas</p>
+            </div>
+        </div>
+
+        {% if not user.is_authenticated %}
+        <div class="cta-buttons">
+            <a href="{% url 'login' %}" class="btn btn-primary">Iniciar Sesión</a>
+            <a href="{% url 'registro' %}" class="btn">Registrarse</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

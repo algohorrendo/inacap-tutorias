@@ -1,0 +1,98 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+{% for noti in notificaciones %}
+  <div class="notificacion {% if forloop.first %}highlight{% endif %}">
+    <h4>{{ noti.titulo }}</h4>
+    <p>{{ noti.mensaje|linebreaksbr }}</p>
+    <small>{{ noti.fecha_envio|date:"d/m/Y H:i" }}</small>
+    
+  </div>
+{% endfor %}
+
+<div id="popupCalificacion" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
+  <div style="background:#fff; margin:10% auto; padding:20px; width:300px; text-align:center;">
+    <h3>Calificar Sesión</h3>
+    <div id="estrellas" style="font-size:2em; cursor:pointer;"></div>
+    <button onclick="enviarCalificacion()">Enviar</button>
+    <button onclick="cerrarPopup()">Cancelar</button>
+    <div id="mensajeCalificacion" style="color:red; margin-top:10px;"></div>
+  </div>
+</div>
+
+<script>
+let calificacionSeleccionada = 0;
+let sesionCalificarId = null;
+
+function abrirPopupCalificacion(sesionId) {
+  sesionCalificarId = sesionId;
+  calificacionSeleccionada = 0;
+  renderEstrellas();
+  document.getElementById('mensajeCalificacion').innerText = '';
+  document.getElementById('popupCalificacion').style.display = 'block';
+}
+
+function cerrarPopup() {
+  document.getElementById('popupCalificacion').style.display = 'none';
+}
+
+function renderEstrellas() {
+  let estrellasHtml = '';
+  for (let i = 1; i <= 5; i++) {
+    estrellasHtml += `<span onclick="seleccionarEstrella(${i})">${i <= calificacionSeleccionada ? '★' : '☆'}</span>`;
+  }
+  document.getElementById('estrellas').innerHTML = estrellasHtml;
+}
+
+function seleccionarEstrella(num) {
+  calificacionSeleccionada = num;
+  renderEstrellas();
+}
+
+function enviarCalificacion() {
+  if (calificacionSeleccionada < 1) {
+    document.getElementById('mensajeCalificacion').innerText = 'Por favor selecciona una calificación.';
+    return;
+  }
+
+  fetch(`/calificar_notificacion/${sesionCalificarId}/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': getCookie('csrftoken'),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: `calificacion=${calificacionSeleccionada}`
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.mensaje) {
+      alert(data.mensaje);
+      cerrarPopup();
+      location.reload();
+    } else if (data.error) {
+      document.getElementById('mensajeCalificacion').innerText = data.error;
+    }
+  })
+  .catch(() => {
+    document.getElementById('mensajeCalificacion').innerText = 'Error al enviar la calificación.';
+  });
+}
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    let cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+      cookie = cookie.trim();
+      if (cookie.startsWith(name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+</script>
+
+
+{%endblock%}

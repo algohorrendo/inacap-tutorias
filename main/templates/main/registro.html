@@ -1,0 +1,63 @@
+{% extends 'main/base.html' %}
+{% block title %}Registro{% endblock %}
+{% block content %}
+<form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div>
+      {{ form.username.label_tag }}<br> {{ form.username }}<br>
+      {{ form.first_name.label_tag }}<br> {{ form.first_name }}<br>
+      {{ form.last_name.label_tag }}<br> {{ form.last_name }}<br>
+      {{ form.email.label_tag }}<br> {{ form.email }}<br>
+      {{ form.genero.label_tag }}<br> {{ form.genero }}<br>
+      {{ form.rut.label_tag }}<br> {{ form.rut }}<br>
+      {{ form.sede.label_tag }}<br> {{ form.sede }}<br>
+      {{ form.carrera.label_tag }}<br> {{ form.carrera }}<br>
+
+      <div id="semestre_container">
+        {{ form.semestre_actual.label_tag }}<br> {{ form.semestre_actual }}<br>
+      </div>
+      <div id="promedio_container">
+        {{ form.promedio_general.label_tag }}<br> {{ form.promedio_general }}<br>
+      </div><br>
+
+      <label>
+        {{ form.es_tutor }} {{ form.es_tutor.label }}
+      </label>
+<br>
+      <div id="detalle_tutor" style="display:none; margin-top: 1em;">
+        {{ form.especialidades.label_tag }}<br>
+        {{ form.especialidades }}<br>
+        {{ form.años_experiencia.label_tag }}<br>
+        {{ form.años_experiencia }}
+      </div>
+<br>
+      {{ form.password1.label_tag }}<br> {{ form.password1 }}<br>
+      {{ form.password2.label_tag }}<br> {{ form.password2 }}<br>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Registrar</button>
+</form>
+
+<script>
+  const tutorCheckbox = document.getElementById('id_es_tutor');
+  const detalleTutor = document.getElementById('detalle_tutor');
+  const promedioContainer = document.getElementById('promedio_container');
+  const semestreContainer = document.getElementById('semestre_container');
+
+  function toggleDetallesTutor() {
+    if (tutorCheckbox.checked) {
+      detalleTutor.style.display = 'block';
+      promedioContainer.style.display = 'none';
+      semestreContainer.style.display = 'none';
+    } else {
+      detalleTutor.style.display = 'none';
+      promedioContainer.style.display = '';
+      semestreContainer.style.display = '';
+    }
+  }
+
+  tutorCheckbox.addEventListener('change', toggleDetallesTutor);
+  window.onload = toggleDetallesTutor;
+</script>
+{% endblock %}

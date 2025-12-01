@@ -1,0 +1,78 @@
+<!-- dashboard.html -->
+{% extends 'main/base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="dashboard-container">
+  <h1>Bienvenido, {{ user.first_name }}</h1>
+  
+  {% if user.es_tutor %}
+    <div class="cards">
+      <div class="card">
+        <h3>Mis Estadísticas</h3>
+        {% if user.tutor_profile %}
+          <p><strong>Sesiones completadas:</strong> {{ user.tutor_profile.total_sesiones }}</p>
+          <p><strong>Horas acumuladas:</strong> {{ user.tutor_profile.horas_acumuladas }}</p>
+          
+          <p><strong>Nivel:</strong> {{ user.tutor_profile.nivel }}</p>
+        {% endif %}
+      </div>
+      
+      <div class="card">
+        <h3>Solicitudes Pendientes</h3>
+        <p> {{ sesiones_pendientes }}</p>
+        <a href="{% url 'mis_sesiones' %}" class="btn">Ver solicitudes</a>
+      </div>
+      
+      <div class="card">
+        <h3>Próximas Sesiones</h3>
+        <p class="stat-number">{{ sesiones_tutor|length }}</p>
+        <a href="{% url 'mis_sesiones' %}" class="btn">Ver agenda</a>
+      </div>
+    </div>
+  {% else %}
+    <div class="cards">
+      <div class="card">
+        <h3>Mi Información</h3>
+        <p><strong>Carrera:</strong> {{ user.carrera }}</p>
+        <p><strong>Semestre:</strong> {{ user.semestre_actual }}</p>
+        <p><strong>Promedio:</strong> {{ user.promedio_general }}</p>
+      </div>
+      
+      <div class="card">
+        <h3>Próximas Sesiones</h3>
+        <p class="stat-number">{{ sesiones_proximas_tutorado|length }}</p>
+        <br>
+        <a href="{% url 'mis_sesiones' %}" class="btn">Ver sesiones</a>
+      </div>
+      
+      <div class="card">
+        <h3>Buscar Tutor</h3>
+        <p>Encuentra un tutor disponible para tu asignatura</p>
+        <a href="{% url 'buscar_tutor' %}" class="btn btn-primary">Buscar</a>
+      </div>
+    </div>
+  {% endif %}
+
+  <section class="tutores-section">
+    <h2>Tutores Destacados</h2>
+<div class="tutores-container">
+  {% for tutor in tutores %}
+    <div class="notificacion-card">  <!-- Reusar la clase de notificaciones para uniformidad estilística -->
+      <h4>{{ tutor.usuario.get_full_name }}</h4>
+      <p><strong>Nivel:</strong> {{ tutor.nivel }}</p>
+      <p><strong>Modalidad preferida:</strong> {{ tutor.modalidad_preferida }}</p>
+      <p><strong>Especialidades:</strong> {{ tutor.especialidades|default:"No especificadas" }}</p>
+      <p><strong>Sesiones completadas:</strong> {{ tutor.total_sesiones }}</p>
+      <a href="{% url 'perfil_tutor' tutor.id %}" class="btn">Ver Perfil</a>
+    </div>
+  {% empty %}
+    <p>No hay tutores destacados.</p>
+  {% endfor %}
+</div>
+     
+    </div>
+  </section>
+</div>
+
+
+{% endblock %}

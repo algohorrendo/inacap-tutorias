@@ -1,0 +1,18 @@
+{% extends 'main/base.html' %}
+{% block content %}
+<h2>Chat con {% if request.user == sesion.tutorado %}{{ sesion.tutor.usuario.get_full_name }}{% else %}{{ sesion.tutorado.get_full_name }}{% endif %}</h2>
+
+<ul>
+  {% for msg in mensajes %}
+    <li><strong>{{ msg.remitente.get_full_name }}:</strong> {{ msg.mensaje }} <small>{{ msg.fecha_envio|date:"d/m/Y H:i" }}</small></li>
+  {% empty %}
+    <li>No hay mensajes aún.</li>
+  {% endfor %}
+</ul>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn">Enviar</button>
+</form>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Usuarios - INACAP Admin{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1><i class="fas fa-users"></i> Gestión de Usuarios</h1>
+    </div>
+</div>
+
+<!-- FILTROS -->
+<div class="filters">
+    <form method="get" class="row g-3">
+        <div class="col-md-2">
+            <label class="form-label">Rol</label>
+            <select name="rol" class="form-select">
+                <option value="">Todos</option>
+                <option value="tutor" {% if rol_filtro == 'tutor' %}selected{% endif %}>Tutores</option>
+                <option value="estudiante" {% if rol_filtro == 'estudiante' %}selected{% endif %}>Estudiantes</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Sede</label>
+            <select name="sede" class="form-select">
+                <option value="">Todas</option>
+                {% for s in sedes %}
+                <option value="{{ s }}" {% if sede_filtro == s %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Carrera</label>
+            <select name="carrera" class="form-select">
+                <option value="">Todas</option>
+                {% for c in carreras %}
+                <option value="{{ c }}" {% if carrera_filtro == c %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Estado</label>
+            <select name="estado" class="form-select">
+                <option value="">Todos</option>
+                <option value="Activo" {% if estado_filtro == 'Activo' %}selected{% endif %}>Activo</option>
+                <option value="Inactivo" {% if estado_filtro == 'Inactivo' %}selected{% endif %}>Inactivo</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Buscar (RUT, Nombre)</label>
+            <input type="text" name="buscar" class="form-control" value="{{ buscar }}" placeholder="RUT o nombre...">
+        </div>
+        <div class="col-md-1 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-search"></i> Buscar
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- TABLA -->
+<div class="card">
+    <div class="card-header">
+        <strong>Total: {{ usuarios.count }} usuarios</strong>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>RUT</th>
+                    <th>Nombre Completo</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Sede</th>
+                    <th>Carrera</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                <tr>
+                    <td><strong>{{ usuario.rut }}</strong></td>
+                    <td>{{ usuario.get_full_name }}</td>
+                    <td>{{ usuario.email }}</td>
+                    <td>
+                        {% if usuario.es_tutor %}
+                        <span class="badge-tutor"><i class="fas fa-chalkboard-user"></i> Tutor</span>
+                        {% else %}
+                        <span class="badge-estudiante"><i class="fas fa-graduation-cap"></i> Estudiante</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ usuario.sede|default:"—" }}</td>
+                    <td>{{ usuario.carrera|default:"—" }}</td>
+                    <td>
+                        {% if usuario.estado == 'Activo' %}
+                        <span class="badge bg-success">Activo</span>
+                        {% else %}
+                        <span class="badge bg-danger">Inactivo</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'admin_editar_usuario' usuario.id %}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-4">
+                        No se encontraron usuarios
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

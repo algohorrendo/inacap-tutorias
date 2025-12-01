@@ -1,0 +1,164 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block title %}Mis Sesiones de Tutoría - Tutor{% endblock %}
+{% block content %}
+<h1>Mis Sesiones de Tutoría (Tutor)</h1>
+
+<!-- Sesiones Pendientes -->
+<section class="sesiones-section">
+  <h2>Sesiones Pendientes ({{ sesiones_pendientes.count }})</h2>
+  {% if sesiones_pendientes %}
+    <div class="sesiones-grid">
+      {% for sesion in sesiones_pendientes %}
+      <div class="sesion-card pendiente">
+        <div class="sesion-header">
+          <h3>{{ sesion.tutorado.get_full_name }}</h3>
+          <span class="badge badge-pending">Esperando respuesta</span>
+        </div>
+        <div class="sesion-body">
+          <p><strong>Asignatura:</strong> {{ sesion.asignatura.nombre }}</p>
+          <p><strong>Fecha solicitada:</strong> {{ sesion.fecha_programada|date:"d/m/Y H:i" }}</p>
+          <p><strong>Modalidad:</strong> {{ sesion.modalidad }}</p>
+          <p><strong>Tema:</strong> {{ sesion.tema_solicitud }}</p>
+          <p><strong>Tutorado Email:</strong> {{ sesion.tutorado.email }}</p>
+        </div>
+        <div class="sesion-actions">
+          <button type="button" class="btn btn-success btn-aceptar" data-sesion-id="{{ sesion.id }}">
+  Aceptar
+</button>
+<button type="button" class="btn btn-danger btn-denegar" data-sesion-id="{{ sesion.id }}">
+  Denegar
+</button>
+
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+
+  function getCSRFToken() {
+    return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  }
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      let cookies = document.cookie.split(';');
+      for (let cookie of cookies) {
+        cookie = cookie.trim();
+        if (cookie.startsWith(name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  document.querySelectorAll('.btn-aceptar').forEach(button => {
+    button.addEventListener('click', () => {
+      const sesionId = button.getAttribute('data-sesion-id');
+      fetch(`/sesion/${sesionId}/aceptar/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCSRFToken(),
+          'Content-Type': 'application/json',
+        }
+      })
+      .then(response => {
+        if (!response.ok) throw new Error('Error en la respuesta del servidor');
+        return response.json();
+      })
+      .then(data => {
+        alert(data.mensaje || 'Sesión aceptada correctamente');
+        location.reload();
+      })
+      .catch(error => {
+        alert('Error al aceptar la sesión');
+        console.error(error);
+      });
+    });
+  });
+
+  document.querySelectorAll('.btn-denegar').forEach(button => {
+    button.addEventListener('click', () => {
+      const sesionId = button.getAttribute('data-sesion-id');
+      const razon = prompt("Por favor ingrese el motivo por el cual rechazas esta sesión")
+      if (razon === null || razon.trim() === '' ) {
+        alert("Debes ingresar un motivo para denegar la sesión")
+        return;    
+    }
+      fetch(`/sesion/${sesionId}/denegar/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken'),
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({razon: razon}),
+      })
+      .then(response => {
+        if (!response.ok) throw new Error('Error en la respuesta del servidor');
+        return response.json();
+      })
+      .then(data => {
+        alert(data.mensaje || 'Sesión denegada correctamente');
+        location.reload();
+      })
+      .catch(error => {
+        alert('Error al denegar la sesión');
+        console.error(error);
+      });
+    });
+  });
+
+});
+
+</script>
+          <a href="{% url 'chat' sesion.id %}" class="btn btn-primary">Chatear</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="sin-contenido">No tienes sesiones pendientes.</p>
+  {% endif %}
+</section>
+
+<!-- Sesiones Próximas -->
+<section class="sesiones-section">
+  <h2>Sesiones Próximas ({{ sesiones_futuras.count }})</h2>
+  {% if sesiones_futuras %}
+    <div class="sesiones-grid">
+      {% for sesion in sesiones_futuras %}
+      <div class="sesion-card aceptada">
+        <div class="sesion-header">
+          <h3>{{ sesion.tutorado.get_full_name }}</h3>
+          <span class="badge badge-accepted">Confirmada</span>
+        </div>
+        <div class="sesion-body">
+          <p><strong>Asignatura:</strong> {{ sesion.asignatura.nombre }}</p>
+          <p><strong>Fecha:</strong> {{ sesion.fecha_programada|date:"d/m/Y H:i" }}</p>
+          <p><strong>Modalidad:</strong> {{ sesion.modalidad }}</p>
+          <p><strong>Duración:</strong> {{ sesion.duracion_minutos }} minutos</p>
+        
+        </div>
+        <div class="sesion-actions">
+          <a href="{% url 'chat' sesion.id %}" class="btn btn-primary">Chatear</a>
+        </div>
+        {% if sesion.estado == "Aceptada" %}
+    <form method="post" action="{% url 'finalizar_sesion' sesion.id %}" style="display:inline;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-warning">Finalizar sesión</button>
+    </form>
+    {% endif %}
+      </div>
+      {% endfor %}
+
+    
+    </div>
+  {% else %}
+    <p class="sin-contenido">No tienes sesiones confirmadas próximas.</p>
+  {% endif %}
+</section>
+
+
+{% endblock %}
+
+

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}INACAP Tutorías{% endblock %}</title>
+    {% load static %}
+    {% csrf_token %}
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="{% url 'index' %}"><span class="icon circ"><i class="fa-solid fa-home"></i></span>Inicio</a></li>
+                <li><a href="{% url 'buscar_tutor' %}"><span class="icon circ"><i class="fa-solid fa-user-graduate"></i></span>Buscar Tutor</a></li>
+                
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'dashboard' %}"><span class="icon circ"><i class="fa-solid fa-dashboard"></i></span>Dashboard</a></li>
+                    <li><a href="{% url 'mis_sesiones' %}"><span class="icon circ"><i class="fa-solid fa-calendar-check"></i></span>Mis Sesiones</a></li>
+                    <li><a href="{% url 'lista_recursos' %}"><span class="icon circ"><i class="fa-solid fa-book"></i></span>Recursos</a></li>
+                    <li><a href="{% url 'notificaciones' %}"><span class="icon circ"><i class="fa-solid fa-bell"></i></span>Notificaciones</a></li>
+                    <li><a href="{% url 'perfil_usuario' %}"><span class="icon circ"><i class="fa-solid fa-user"></i></span>Perfil</a></li>
+                    
+                    {% if user.es_tutor %}
+                        <li><a href="{% url 'mi_disponibilidad' %}"><span class="icon circ"><i class="fa-solid fa-clock"></i></span>Mi Disponibilidad</a></li>
+                    {% endif %}
+                    
+                    <li><a href="{% url 'api_client' %}"><span class="icon circ"><i class="fa-solid fa-code"></i></span>API Client</a></li>
+                    
+                    {% if user.is_staff %}
+                        <li><a href="{% url 'admin_dashboard' %}"><span class="icon circ"><i class="fa-solid fa-cogs"></i></span>Panel Admin</a></li>
+                    {% endif %}
+                    
+                    <li><a href="{% url 'logout' %}"><span class="icon circ"><i class="fa-solid fa-arrow-right-from-bracket"></i></span>Cerrar Sesión</a></li>
+                {% else %}
+                    <li><a href="{% url 'login' %}"><span class="icon circ"><i class="fa-solid fa-sign-in"></i></span>Iniciar Sesión</a></li>
+                    <li><a href="{% url 'registro' %}"><span class="icon circ"><i class="fa-solid fa-user-plus"></i></span>Registrarse</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; {% now "Y" %} INACAP Tutorías. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

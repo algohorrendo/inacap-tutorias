@@ -1,0 +1,36 @@
+{% extends 'main/base.html' %}
+{% block title %}Buscar Tutor{% endblock %}
+{% block content %}
+<div class="buscar-container">
+  <h1>Buscar Tutor</h1>
+  
+  <form method="GET" class="filtro-form">
+    <input type="text" name="nombre" placeholder="Buscar por nombre..." value="{{ request.GET.nombre }}">
+    <input type="text" name="especialidad" placeholder="Buscar por especialidad..." value="{{ request.GET.especialidad }}">
+    <button type="submit" class="btn">Buscar</button>
+  </form>
+
+  {% if tutores %}
+    <div class="cards">
+      {% for tutor in tutores %}
+        <div class="card">
+          <h3>{{ tutor.usuario.get_full_name }}</h3>
+          <p class="nivel">{{ tutor.nivel }}</p>
+          <p><strong>Modalidad:</strong> {{ tutor.modalidad_preferida }}</p>
+          <p><strong>Especialidades:</strong> {{ tutor.especialidades|default:"No especificadas" }}</p>
+          <p><strong>Sesiones completadas:</strong> {{ tutor.total_sesiones }}</p>
+          {% if tutor.bio_descripcion %}
+            <p><strong>Sobre el tutor:</strong> {{ tutor.bio_descripcion }}</p>
+          {% endif %}
+          <div class="card-actions">
+            <a href="{% url 'perfil_tutor' tutor.id %}" class="btn">Ver perfil</a>
+            <a href="{% url 'agendar_sesion' tutor.id %}" class="btn btn-primary">Agendar sesión</a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="sin-resultados">No se encontraron tutores. Intenta con otro nombre.</p>
+  {% endif %}
+</div>
+{% endblock %}
