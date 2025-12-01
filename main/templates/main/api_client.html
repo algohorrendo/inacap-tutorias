@@ -108,17 +108,17 @@
     </div>
 
     <div class="info-card" style="max-width: 100%; flex: 1 1 100%; margin-top: 20px;">
-        <h3><i class="fa-solid fa-graduation-cap"></i> API Externa - Universidades Chile</h3>
-        <p class="endpoint-label"><code>https://universities.hipolabs.com/search?country=Chile</code></p>
-        <p>API pública que retorna información de universidades por país.</p>
+        <h3><i class="fa-solid fa-globe-americas"></i> API Externa - Países Sudamérica</h3>
+        <p class="endpoint-label"><code>https://restcountries.com/v3.1/region/south%20america</code></p>
+        <p>API pública que retorna información de países de Sudamérica.</p>
         
         <div class="sesion-actions">
-            <button class="btn btn-success" onclick="fetchUniversidades()">
-                <i class="fa-solid fa-university"></i> Obtener Universidades de Chile
+            <button class="btn btn-success" onclick="fetchCountries()">
+                <i class="fa-solid fa-flag"></i> Obtener Países de Sudamérica
             </button>
         </div>
         
-        <div id="universidades-result" class="external-result"></div>
+        <div id="countries-result" class="external-result"></div>
     </div>
 </div>
 
@@ -579,31 +579,30 @@ async function fetchExternalComments() {
     }
 }
 
-async function fetchUniversidades() {
-    const container = document.getElementById('universidades-result');
+async function fetchCountries() {
+    const container = document.getElementById('countries-result');
     container.innerHTML = '<div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Conectando via proxy...</div>';
     
     try {
-        const response = await fetch('/api/proxy/universidades/');
+        const response = await fetch('/api/proxy/countries/');
         const data = await response.json();
         
         if (data.error) throw new Error(data.error);
         
         container.innerHTML = `
             <div class="external-data">
-                <h4><i class="fa-solid fa-check-circle"></i> Conexión exitosa - ${data.length} universidades</h4>
+                <h4><i class="fa-solid fa-check-circle"></i> Conexión exitosa - ${data.length} países</h4>
                 <div class="universities-grid">
-                    ${data.slice(0, 8).map(uni => `
+                    ${data.map(country => `
                         <div class="uni-item">
-                            <span>${uni.name.substring(0, 30)}${uni.name.length > 30 ? '...' : ''}</span>
-                            <a href="${uni.web_pages[0]}" target="_blank"><i class="fa-solid fa-external-link"></i></a>
+                            <span>${country.flag} ${country.name.common}</span>
+                            <span>${country.capital ? country.capital[0] : 'N/A'}</span>
                         </div>
                     `).join('')}
                 </div>
                 <div class="json-preview">
-                    <pre>${JSON.stringify(data.slice(0, 3), null, 2)}</pre>
+                    <pre>${JSON.stringify(data.slice(0, 2), null, 2)}</pre>
                 </div>
-                <p class="more-items">... y ${data.length - 3} más</p>
             </div>
         `;
     } catch (error) {

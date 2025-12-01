@@ -44,11 +44,11 @@ def api_client(request):
 # ============================================
 @login_required
 @user_passes_test(is_admin)
-def proxy_universidades(request):
-    """Proxy para API de universidades de Chile"""
+def proxy_countries(request):
+    """Proxy para API de países de Sudamérica"""
     try:
         response = requests.get(
-            'https://universities.hipolabs.com/search?country=Chile',
+            'https://restcountries.com/v3.1/region/south%20america',
             timeout=10
         )
         return JsonResponse(response.json(), safe=False)
