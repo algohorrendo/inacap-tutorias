@@ -23,5 +23,6 @@ requests==2.31.0
 # Production server
 gunicorn==21.2.0
 
-# psycopg2 for PostgreSQL (Render uses PostgreSQL)
-psycopg2-binary==2.9.9
+# psycopg for PostgreSQL (Render uses PostgreSQL)
+# Using psycopg3 for better Python 3.13 compatibility
+psycopg[binary]==3.2.3
