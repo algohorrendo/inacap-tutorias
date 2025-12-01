@@ -16,6 +16,7 @@ from django.utils import timezone
 from django.contrib.auth.hashers import make_password
 from datetime import datetime, timedelta
 import json
+import requests
 from django.db.models import Q, Count
 
 # Verificar si es administrador
@@ -36,6 +37,41 @@ def index(request):
 def api_client(request):
     """Vista del cliente API - Solo para administradores"""
     return render(request, 'main/api_client.html')
+
+
+# ============================================
+# PROXY PARA APIs EXTERNAS (evitar CORS)
+# ============================================
+@login_required
+@user_passes_test(is_admin)
+def proxy_universidades(request):
+    """Proxy para API de universidades de Chile"""
+    try:
+        response = requests.get(
+            'https://universities.hipolabs.com/search?country=Chile',
+            timeout=10
+        )
+        return JsonResponse(response.json(), safe=False)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+@user_passes_test(is_admin)
+def proxy_jsonplaceholder(request, endpoint):
+    """Proxy para JSONPlaceholder API"""
+    allowed_endpoints = ['posts', 'users', 'comments', 'todos']
+    if endpoint not in allowed_endpoints:
+        return JsonResponse({'error': 'Endpoint no permitido'}, status=400)
+    
+    try:
+        response = requests.get(
+            f'https://jsonplaceholder.typicode.com/{endpoint}?_limit=10',
+            timeout=10
+        )
+        return JsonResponse(response.json(), safe=False)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 def registro_view(request):
     if request.method == 'POST':
