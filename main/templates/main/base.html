@@ -28,9 +28,8 @@
                         <li><a href="{% url 'mi_disponibilidad' %}"><span class="icon circ"><i class="fa-solid fa-clock"></i></span>Mi Disponibilidad</a></li>
                     {% endif %}
                     
-                    <li><a href="{% url 'api_client' %}"><span class="icon circ"><i class="fa-solid fa-code"></i></span>API Client</a></li>
-                    
                     {% if user.is_staff %}
+                        <li><a href="{% url 'api_client' %}"><span class="icon circ"><i class="fa-solid fa-code"></i></span>API Client</a></li>
                         <li><a href="{% url 'admin_dashboard' %}"><span class="icon circ"><i class="fa-solid fa-cogs"></i></span>Panel Admin</a></li>
                     {% endif %}
                     

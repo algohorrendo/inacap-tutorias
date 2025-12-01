@@ -32,7 +32,9 @@ def index(request):
     })
 
 @login_required
+@user_passes_test(is_admin)
 def api_client(request):
+    """Vista del cliente API - Solo para administradores"""
     return render(request, 'main/api_client.html')
 
 def registro_view(request):
