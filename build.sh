@@ -14,10 +14,25 @@ python manage.py migrate
 
 # Crear superusuario admin y poblar base de datos
 python manage.py shell << EOF
-from main.models import Usuario, Tutor, Asignatura, DisponibilidadTutor, SesionTutoria, RecursoEducativo
+from main.models import Usuario, Tutor, Asignatura, DisponibilidadTutor, SesionTutoria, RecursoEducativo, Carrera
 from django.utils import timezone
 from datetime import timedelta
 import random
+
+# ============================================
+# CREAR CARRERA
+# ============================================
+carrera, _ = Carrera.objects.get_or_create(
+    codigo='INFO',
+    defaults={
+        'nombre': 'Ingeniería en Informática',
+        'area': 'Tecnologia',
+        'nivel': 'Profesional',
+        'duracion_semestres': 8,
+        'activo': True
+    }
+)
+print(f'✅ Carrera creada: {carrera.nombre}')
 
 # ============================================
 # CREAR ADMIN
@@ -40,20 +55,29 @@ if not Usuario.objects.filter(rut='22072118-3').exists():
 # CREAR ASIGNATURAS
 # ============================================
 asignaturas_data = [
-    ('Programación I', 'INFO101'),
-    ('Programación II', 'INFO102'),
-    ('Base de Datos', 'INFO201'),
-    ('Cálculo I', 'MAT101'),
-    ('Cálculo II', 'MAT102'),
-    ('Física I', 'FIS101'),
-    ('Álgebra Lineal', 'MAT103'),
-    ('Estructuras de Datos', 'INFO202'),
-    ('Redes de Computadores', 'INFO301'),
-    ('Sistemas Operativos', 'INFO302'),
+    ('Programación I', 'INFO101', 1),
+    ('Programación II', 'INFO102', 2),
+    ('Base de Datos', 'INFO201', 3),
+    ('Cálculo I', 'MAT101', 1),
+    ('Cálculo II', 'MAT102', 2),
+    ('Física I', 'FIS101', 2),
+    ('Álgebra Lineal', 'MAT103', 1),
+    ('Estructuras de Datos', 'INFO202', 3),
+    ('Redes de Computadores', 'INFO301', 5),
+    ('Sistemas Operativos', 'INFO302', 4),
 ]
 
-for nombre, codigo in asignaturas_data:
-    Asignatura.objects.get_or_create(nombre=nombre, defaults={'codigo': codigo})
+for nombre, codigo, semestre in asignaturas_data:
+    Asignatura.objects.get_or_create(
+        codigo=codigo,
+        defaults={
+            'nombre': nombre,
+            'carrera': carrera,
+            'semestre': semestre,
+            'es_critica': semestre <= 2,
+            'activo': True
+        }
+    )
 print(f'✅ {Asignatura.objects.count()} asignaturas creadas')
 
 # ============================================
