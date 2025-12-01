@@ -1,8 +1,8 @@
 # Django Framework
 Django==4.2.7
 
-# Database
-mysqlclient==2.2.0
+# Database (PostgreSQL for production)
+# mysqlclient removed - not needed for PostgreSQL deployment
 dj-database-url==2.1.0
 
 # Django REST Framework
