@@ -1,64 +1,80 @@
 {% extends 'main/base.html' %}
 {% load static %}
-{% block title %}Mis Sesiones{% endblock %}
+{% block title %}Mis Sesiones - INACAP Tutorías{% endblock %}
+
 {% block content %}
-<h1>Mis Sesiones de Tutoría</h1>
+<div class="header">
+    <h1><i class="fa-solid fa-calendar-check"></i> Mis Sesiones de Tutoría</h1>
+    <p>Gestiona tus sesiones programadas</p>
+</div>
 
 <!-- Sesiones Pendientes -->
-<section class="sesiones-section">
-  <h2>⏳ Solicitudes Pendientes ({{ sesiones_pendientes.count }})</h2>
-  {% if sesiones_pendientes %}
-    <div class="sesiones-grid">
-      {% for sesion in sesiones_pendientes %}
-      <div class="sesion-card pendiente">
-        <div class="sesion-header">
-          <h3>{{ sesion.tutor.usuario.get_full_name }}</h3>
-          <span class="badge badge-pending">Esperando respuesta</span>
+<div style="margin-bottom: 30px;">
+    <h2 style="border-bottom: 2px solid #e31e24; padding-bottom: 10px; margin-bottom: 15px;">
+        <i class="fa-solid fa-clock"></i> Solicitudes Pendientes ({{ sesiones_pendientes.count }})
+    </h2>
+    {% if sesiones_pendientes %}
+    <div class="cards">
+        {% for sesion in sesiones_pendientes %}
+        <div class="card sesion-card pendiente">
+            <div class="sesion-header">
+                <h3><i class="fa-solid fa-user-graduate"></i> {{ sesion.tutor.usuario.get_full_name }}</h3>
+                <span class="badge badge-pending">Esperando respuesta</span>
+            </div>
+            <div class="sesion-body">
+                <p><strong>Asignatura:</strong> {{ sesion.asignatura.nombre }}</p>
+                <p><strong>Fecha solicitada:</strong> {{ sesion.fecha_programada|date:"d/m/Y H:i" }}</p>
+                <p><strong>Modalidad:</strong> {{ sesion.get_modalidad_display }}</p>
+                <p><strong>Tema:</strong> {{ sesion.tema_solicitud|truncatewords:15 }}</p>
+                <p><strong>Especialidad del tutor:</strong> {{ sesion.tutor.especialidades|default:"No especificada"|truncatewords:10 }}</p>
+            </div>
         </div>
-        <div class="sesion-body">
-          <p><strong>Asignatura:</strong> {{ sesion.asignatura.nombre }}</p>
-          <p><strong>Fecha solicitada:</strong> {{ sesion.fecha_programada|date:"d/m/Y H:i" }}</p>
-          <p><strong>Modalidad:</strong> {{ sesion.modalidad }}</p>
-          <p><strong>Tema:</strong> {{ sesion.tema_solicitud }}</p>
-          <p><strong>Especialidad del tutor:</strong> {{ sesion.tutor.especialidades|default:"No especificada" }}</p>
-        </div>
-      </div>
-      {% endfor %}
+        {% endfor %}
     </div>
-  {% else %}
-    <p class="sin-contenido">No tienes solicitudes pendientes.</p>
-  {% endif %}
-</section>
+    {% else %}
+    <div class="sin-contenido">
+        <i class="fa-solid fa-check-circle" style="font-size: 48px; color: #4caf50; margin-bottom: 15px;"></i>
+        <p>No tienes solicitudes pendientes.</p>
+    </div>
+    {% endif %}
+</div>
 
 <!-- Sesiones Próximas Aceptadas -->
-<section class="sesiones-section">
-  <h2>Sesiones Próximas ({{ sesiones_futuras.count }})</h2>
-  {% if sesiones_futuras %}
-    <div class="sesiones-grid">
-      {% for sesion in sesiones_futuras %}
-      <div class="sesion-card aceptada">
-        <div class="sesion-header">
-          <h3>{{ sesion.tutor.usuario.get_full_name }}</h3>
-          <span class="badge badge-accepted">Confirmada</span>
+<div style="margin-bottom: 30px;">
+    <h2 style="border-bottom: 2px solid #e31e24; padding-bottom: 10px; margin-bottom: 15px;">
+        <i class="fa-solid fa-calendar-check"></i> Sesiones Próximas ({{ sesiones_futuras.count }})
+    </h2>
+    {% if sesiones_futuras %}
+    <div class="cards">
+        {% for sesion in sesiones_futuras %}
+        <div class="card sesion-card aceptada">
+            <div class="sesion-header">
+                <h3><i class="fa-solid fa-user-graduate"></i> {{ sesion.tutor.usuario.get_full_name }}</h3>
+                <span class="badge badge-accepted">Confirmada</span>
+            </div>
+            <div class="sesion-body">
+                <p><strong>Asignatura:</strong> {{ sesion.asignatura.nombre }}</p>
+                <p><strong>Fecha:</strong> {{ sesion.fecha_programada|date:"d/m/Y H:i" }}</p>
+                <p><strong>Modalidad:</strong> {{ sesion.get_modalidad_display }}</p>
+                <p><strong>Duración:</strong> {{ sesion.duracion_minutos }} minutos</p>
+                <p><strong>Tutor:</strong> {{ sesion.tutor.usuario.get_full_name }} ({{ sesion.tutor.nivel }})</p>
+            </div>
+            <div class="sesion-actions">
+                <a href="{% url 'chat' sesion.id %}" class="btn btn-primary btn-sm">
+                    <i class="fa-solid fa-comments"></i> Chatear
+                </a>
+            </div>
         </div>
-        <div class="sesion-body">
-          <p><strong>Asignatura:</strong> {{ sesion.asignatura.nombre }}</p>
-          <p><strong>Fecha:</strong> {{ sesion.fecha_programada|date:"d/m/Y H:i" }}</p>
-          <p><strong>Modalidad:</strong> {{ sesion.modalidad }}</p>
-          <p><strong>Duración:</strong> {{ sesion.duracion_minutos }} minutos</p>
-          <p><strong>Tutor:</strong> {{ sesion.tutor.usuario.get_full_name }} ({{ sesion.tutor.nivel }})</p>
-          
-
-          <a href="{% url 'chat' sesion.id %}" class="btn btn-primary">Chatear</a>
-        </div>
-      </div>
-      {% endfor %}
+        {% endfor %}
     </div>
-  {% else %}
-    <p class="sin-contenido">No tienes sesiones confirmadas próximas. <a href="{% url 'buscar_tutor' %}">Busca un tutor</a></p>
-  {% endif %}
-</section>
-
-
-
+    {% else %}
+    <div class="sin-contenido">
+        <i class="fa-solid fa-calendar-times" style="font-size: 48px; color: #999; margin-bottom: 15px;"></i>
+        <p>No tienes sesiones confirmadas próximas.</p>
+        <a href="{% url 'buscar_tutor' %}" class="btn btn-primary" style="margin-top: 15px;">
+            <i class="fa-solid fa-search"></i> Buscar un Tutor
+        </a>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

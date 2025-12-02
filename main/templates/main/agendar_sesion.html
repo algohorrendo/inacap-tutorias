@@ -1,52 +1,94 @@
 {% extends 'main/base.html' %}
-{% block title %}Agendar Sesión{% endblock %}
+{% block title %}Agendar Sesión - INACAP Tutorías{% endblock %}
+
 {% block content %}
-<div class="agendar-container">
-  <h1>Agendar Sesión con {{ tutor.usuario.get_full_name }}</h1>
-
-  <div class="tutor-info">
-    <p><strong>Nivel:</strong> {{ tutor.nivel }}</p>
-  </div>
-
-  <form method="post" class="formulario-agendar">
-    {% csrf_token %}
-    {{ form.non_field_errors }}
-
-    <div class="form-group">
-      <label for="{{ form.asignatura.id_for_label }}">Asignatura</label>
-      {{ form.asignatura }}
-      {{ form.asignatura.errors }}
-    </div>
-
-    <div class="form-group">
-      <label for="{{ form.hora_disponible.id_for_label }}">Horario disponible</label>
-      {{ form.hora_disponible }}
-      {{ form.hora_disponible.errors }}
-    </div>
-
-    <div class="form-group">
-      <label for="{{ form.modalidad.id_for_label }}">Modalidad</label>
-      <div class="radio-group">
-        {% for value, label in form.modalidad.field.choices %}
-          <label class="radio-label">
-            <input type="radio" name="modalidad" value="{{ value }}" {% if form.modalidad.value == value %}checked{% endif %}>
-            {{ label }}
-          </label>
-        {% endfor %}
-      </div>
-      {{ form.modalidad.errors }}
-    </div>
-
-    <div class="form-group">
-      <label for="{{ form.tema_solicitud.id_for_label }}">Tema de la sesión</label>
-      {{ form.tema_solicitud }}
-      {{ form.tema_solicitud.errors }}
-    </div>
-
-    <div class="form-actions">
-      <button type="submit" class="btn btn-primary">Agendar sesión</button>
-      <a href="{% url 'perfil_tutor' tutor.id %}" class="btn btn-secondary">Cancelar</a>
-    </div>
-  </form>
+<div class="header">
+    <h1><i class="fa-solid fa-calendar-plus"></i> Agendar Sesión con {{ tutor.usuario.get_full_name }}</h1>
+    <p>Programa tu sesión de tutoría</p>
 </div>
+
+<div class="info-card" style="margin-bottom: 20px;">
+    <h3><i class="fa-solid fa-info-circle"></i> Información del Tutor</h3>
+    <div class="sesion-body">
+        <p><strong>Nivel:</strong> <span class="badge nivel-{{ tutor.nivel|lower }}">{{ tutor.nivel }}</span></p>
+        <p><strong>Calificación:</strong> {{ tutor.calificacion_promedio|floatformat:1 }}/5.0</p>
+        <p><strong>Modalidad preferida:</strong> {{ tutor.get_modalidad_preferida_display }}</p>
+    </div>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+    
+    {% if form.non_field_errors %}
+    <div class="mensaje-error">
+        {% for error in form.non_field_errors %}
+        <p>{{ error }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="form-group">
+        <label for="{{ form.asignatura.id_for_label }}">{{ form.asignatura.label }}</label>
+        {{ form.asignatura }}
+        {% if form.asignatura.errors %}
+        <ul class="errorlist">
+            {% for error in form.asignatura.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.hora_disponible.id_for_label }}">{{ form.hora_disponible.label }}</label>
+        {{ form.hora_disponible }}
+        {% if form.hora_disponible.errors %}
+        <ul class="errorlist">
+            {% for error in form.hora_disponible.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.modalidad.id_for_label }}">{{ form.modalidad.label }}</label>
+        <div class="radio-group">
+            {% for value, label in form.modalidad.field.choices %}
+            <label class="radio-label">
+                <input type="radio" name="modalidad" value="{{ value }}" {% if form.modalidad.value == value %}checked{% endif %}>
+                {{ label }}
+            </label>
+            {% endfor %}
+        </div>
+        {% if form.modalidad.errors %}
+        <ul class="errorlist">
+            {% for error in form.modalidad.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.tema_solicitud.id_for_label }}">{{ form.tema_solicitud.label }}</label>
+        {{ form.tema_solicitud }}
+        {% if form.tema_solicitud.errors %}
+        <ul class="errorlist">
+            {% for error in form.tema_solicitud.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+
+    <div class="sesion-actions">
+        <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-calendar-check"></i> Agendar Sesión
+        </button>
+        <a href="{% url 'perfil_tutor' tutor.id %}" class="btn btn-secondary">
+            <i class="fa-solid fa-times"></i> Cancelar
+        </a>
+    </div>
+</form>
 {% endblock %}

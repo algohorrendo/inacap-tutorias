@@ -1,18 +1,55 @@
 {% extends 'main/base.html' %}
+{% block title %}Chat - INACAP Tutorías{% endblock %}
+
 {% block content %}
-<h2>Chat con {% if request.user == sesion.tutorado %}{{ sesion.tutor.usuario.get_full_name }}{% else %}{{ sesion.tutorado.get_full_name }}{% endif %}</h2>
+<div class="header">
+    <h1><i class="fa-solid fa-comments"></i> Chat de Sesión</h1>
+    <p>Conversación con {% if request.user == sesion.tutorado %}{{ sesion.tutor.usuario.get_full_name }}{% else %}{{ sesion.tutorado.get_full_name }}{% endif %}</p>
+</div>
 
-<ul>
-  {% for msg in mensajes %}
-    <li><strong>{{ msg.remitente.get_full_name }}:</strong> {{ msg.mensaje }} <small>{{ msg.fecha_envio|date:"d/m/Y H:i" }}</small></li>
-  {% empty %}
-    <li>No hay mensajes aún.</li>
-  {% endfor %}
-</ul>
+<div class="chat-container">
+    <div class="mensajes-box" id="mensajes-box">
+        {% for msg in mensajes %}
+        <div class="mensaje {% if msg.remitente == request.user %}propio{% else %}ajeno{% endif %}">
+            <div class="mensaje-header">
+                <strong>{{ msg.remitente.get_full_name }}</strong>
+                <span>{{ msg.fecha_envio|date:"d/m/Y H:i" }}</span>
+            </div>
+            <div class="mensaje-contenido">{{ msg.mensaje|linebreaksbr }}</div>
+        </div>
+        {% empty %}
+        <div class="sin-contenido" style="text-align: center; padding: 40px;">
+            <i class="fa-solid fa-comment-slash" style="font-size: 48px; color: #999; margin-bottom: 15px;"></i>
+            <p>No hay mensajes aún. ¡Sé el primero en escribir!</p>
+        </div>
+        {% endfor %}
+    </div>
 
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit" class="btn">Enviar</button>
-</form>
+    <form method="post" class="input-mensaje">
+        {% csrf_token %}
+        <div style="flex: 1;">
+            {{ form.mensaje }}
+            {% if form.mensaje.errors %}
+            <ul class="errorlist">
+                {% for error in form.mensaje.errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-paper-plane"></i> Enviar
+        </button>
+    </form>
+</div>
+
+<script>
+// Auto-scroll al final de los mensajes
+document.addEventListener('DOMContentLoaded', function() {
+    const mensajesBox = document.getElementById('mensajes-box');
+    if (mensajesBox) {
+        mensajesBox.scrollTop = mensajesBox.scrollHeight;
+    }
+});
+</script>
 {% endblock %}

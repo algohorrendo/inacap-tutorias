@@ -1,23 +1,63 @@
 {% extends 'main/base.html' %}
 {% load static %}
-{% block content %}
-{% for noti in notificaciones %}
-  <div class="notificacion {% if forloop.first %}highlight{% endif %}">
-    <h4>{{ noti.titulo }}</h4>
-    <p>{{ noti.mensaje|linebreaksbr }}</p>
-    <small>{{ noti.fecha_envio|date:"d/m/Y H:i" }}</small>
-    
-  </div>
-{% endfor %}
+{% block title %}Notificaciones - INACAP Tutorías{% endblock %}
 
-<div id="popupCalificacion" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
-  <div style="background:#fff; margin:10% auto; padding:20px; width:300px; text-align:center;">
-    <h3>Calificar Sesión</h3>
-    <div id="estrellas" style="font-size:2em; cursor:pointer;"></div>
-    <button onclick="enviarCalificacion()">Enviar</button>
-    <button onclick="cerrarPopup()">Cancelar</button>
-    <div id="mensajeCalificacion" style="color:red; margin-top:10px;"></div>
-  </div>
+{% block content %}
+<div class="header">
+    <h1><i class="fa-solid fa-bell"></i> Notificaciones</h1>
+    <p>Mantente al día con tus actividades</p>
+</div>
+
+{% if notificaciones %}
+<div class="cards">
+    {% for noti in notificaciones %}
+    <div class="card {% if not noti.leida %}sesion-card pendiente{% endif %}">
+        <div class="sesion-header">
+            <h3><i class="fa-solid fa-{{ noti.tipo|default:'bell' }}"></i> {{ noti.titulo }}</h3>
+            {% if not noti.leida %}
+            <span class="badge badge-pending">Nueva</span>
+            {% else %}
+            <span class="badge badge-completed">Leída</span>
+            {% endif %}
+        </div>
+        <div class="sesion-body">
+            <p>{{ noti.mensaje|linebreaksbr }}</p>
+            <small style="color: #666;">{{ noti.fecha_envio|date:"d/m/Y H:i" }}</small>
+        </div>
+        {% if not noti.leida %}
+        <div class="sesion-actions">
+            <form method="post" style="display: inline;">
+                {% csrf_token %}
+                <input type="hidden" name="noti_id" value="{{ noti.id }}">
+                <button type="submit" class="btn btn-sm btn-success">
+                    <i class="fa-solid fa-check"></i> Marcar como leída
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="sin-contenido">
+    <i class="fa-solid fa-bell-slash" style="font-size: 48px; color: #999; margin-bottom: 15px;"></i>
+    <p>No tienes notificaciones.</p>
+</div>
+{% endif %}
+
+<div id="popupCalificacion" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="cerrarPopup()">&times;</span>
+        <h3>Calificar Sesión</h3>
+        <div id="estrellas" class="calificacion-stars">
+            <div class="stars"></div>
+        </div>
+        <div class="modal-actions">
+            <button onclick="enviarCalificacion()" class="btn btn-primary">Enviar</button>
+            <button onclick="cerrarPopup()" class="btn btn-secondary">Cancelar</button>
+        </div>
+        <div id="mensajeCalificacion" class="error-msg" style="margin-top: 15px;"></div>
+    </div>
 </div>
 
 <script>
@@ -25,74 +65,79 @@ let calificacionSeleccionada = 0;
 let sesionCalificarId = null;
 
 function abrirPopupCalificacion(sesionId) {
-  sesionCalificarId = sesionId;
-  calificacionSeleccionada = 0;
-  renderEstrellas();
-  document.getElementById('mensajeCalificacion').innerText = '';
-  document.getElementById('popupCalificacion').style.display = 'block';
+    sesionCalificarId = sesionId;
+    calificacionSeleccionada = 0;
+    renderEstrellas();
+    document.getElementById('mensajeCalificacion').innerText = '';
+    document.getElementById('popupCalificacion').style.display = 'block';
 }
 
 function cerrarPopup() {
-  document.getElementById('popupCalificacion').style.display = 'none';
+    document.getElementById('popupCalificacion').style.display = 'none';
 }
 
 function renderEstrellas() {
-  let estrellasHtml = '';
-  for (let i = 1; i <= 5; i++) {
-    estrellasHtml += `<span onclick="seleccionarEstrella(${i})">${i <= calificacionSeleccionada ? '★' : '☆'}</span>`;
-  }
-  document.getElementById('estrellas').innerHTML = estrellasHtml;
+    let estrellasHtml = '';
+    for (let i = 1; i <= 5; i++) {
+        estrellasHtml += `<span class="star ${i <= calificacionSeleccionada ? 'active' : ''}" onclick="seleccionarEstrella(${i})">★</span>`;
+    }
+    document.querySelector('#estrellas .stars').innerHTML = estrellasHtml;
 }
 
 function seleccionarEstrella(num) {
-  calificacionSeleccionada = num;
-  renderEstrellas();
+    calificacionSeleccionada = num;
+    renderEstrellas();
 }
 
 function enviarCalificacion() {
-  if (calificacionSeleccionada < 1) {
-    document.getElementById('mensajeCalificacion').innerText = 'Por favor selecciona una calificación.';
-    return;
-  }
-
-  fetch(`/calificar_notificacion/${sesionCalificarId}/`, {
-    method: 'POST',
-    headers: {
-      'X-CSRFToken': getCookie('csrftoken'),
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },
-    body: `calificacion=${calificacionSeleccionada}`
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.mensaje) {
-      alert(data.mensaje);
-      cerrarPopup();
-      location.reload();
-    } else if (data.error) {
-      document.getElementById('mensajeCalificacion').innerText = data.error;
+    if (calificacionSeleccionada < 1) {
+        document.getElementById('mensajeCalificacion').innerText = 'Por favor selecciona una calificación.';
+        return;
     }
-  })
-  .catch(() => {
-    document.getElementById('mensajeCalificacion').innerText = 'Error al enviar la calificación.';
-  });
+
+    fetch(`/calificar_notificacion/${sesionCalificarId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `calificacion=${calificacionSeleccionada}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.mensaje) {
+            alert(data.mensaje);
+            cerrarPopup();
+            location.reload();
+        } else if (data.error) {
+            document.getElementById('mensajeCalificacion').innerText = data.error;
+        }
+    })
+    .catch(() => {
+        document.getElementById('mensajeCalificacion').innerText = 'Error al enviar la calificación.';
+    });
 }
 
 function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    let cookies = document.cookie.split(';');
-    for (let cookie of cookies) {
-      cookie = cookie.trim();
-      if (cookie.startsWith(name + '=')) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        let cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
     }
-  }
-  return cookieValue;
+    return cookieValue;
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('popupCalificacion');
+    if (event.target === modal) {
+        cerrarPopup();
+    }
 }
 </script>
-
-
-{%endblock%}
+{% endblock %}

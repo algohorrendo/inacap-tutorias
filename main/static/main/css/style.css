@@ -231,12 +231,13 @@ h3 {
    HEADER Y AVATAR
    ============================================ */
 .header {
-  background: linear-gradient(92deg, #7f7fd5 0%, #86a8e7 100%);
+  background: linear-gradient(92deg, #e31e24 0%, #bf1a1f 100%);
   color: white;
   border-radius: 12px;
   padding: 20px 30px;
   margin-bottom: 30px;
   margin-top: 15px;
+  box-shadow: 0 2px 8px rgba(227, 30, 36, 0.3);
 }
 
 .avatar {
@@ -562,7 +563,7 @@ table {
 }
 
 thead {
-  background: linear-gradient(90deg, #7f7fd5, #86a8e7);
+  background: linear-gradient(90deg, #e31e24, #bf1a1f);
   color: white;
 }
 
@@ -589,7 +590,7 @@ tbody tr:hover {
 }
 
 #tablaHorario thead {
-  background: linear-gradient(90deg, #7f7fd5, #86a8e7);
+  background: linear-gradient(90deg, #e31e24, #bf1a1f);
   color: white;
   text-transform: uppercase;
   font-weight: bold;

@@ -1,43 +1,60 @@
 {% extends 'main/base.html' %}
-{% block title %}Perfil de Tutor{% endblock %}
+{% block title %}Perfil de Tutor - INACAP Tutorías{% endblock %}
+
 {% block content %}
-<div class="perfil-container">
-  <div class="perfil-header">
-    <h1>{{ tutor.usuario.get_full_name }}</h1>
-    <p class="nivel-badge">{{ tutor.nivel }}</p>
-  </div>
+<div class="header">
+    <h1><i class="fa-solid fa-user-graduate"></i> {{ tutor.usuario.get_full_name }}</h1>
+    <p>Perfil del tutor</p>
+</div>
 
- 
+<div class="info-grid">
+    <div class="info-card">
+        <h3><i class="fa-solid fa-chart-line"></i> Estadísticas</h3>
+        <div class="sesion-body">
+            <p><strong>Nivel:</strong> <span class="badge nivel-{{ tutor.nivel|lower }}">{{ tutor.nivel }}</span></p>
+            <p><strong>Calificación promedio:</strong> 
+                <span style="color: #4caf50; font-weight: bold;">{{ tutor.calificacion_promedio|floatformat:1 }}</span>/5.0
+            </p>
+            <p><strong>Sesiones completadas:</strong> {{ tutor.total_sesiones }}</p>
+            <p><strong>Horas acumuladas:</strong> {{ tutor.horas_acumuladas }}h</p>
+            <p><strong>Años de experiencia:</strong> {{ tutor.años_experiencia }}</p>
+        </div>
+    </div>
 
     <div class="info-card">
-      <h3>Estadísticas</h3>
-      <p><strong>Sesiones:</strong> {{ tutor.total_sesiones }}</p>
-      <p><strong>Horas:</strong> {{ tutor.horas_acumuladas }}</p>
+        <h3><i class="fa-solid fa-info-circle"></i> Información</h3>
+        <div class="sesion-body">
+            <p><strong>Modalidad preferida:</strong> {{ tutor.get_modalidad_preferida_display }}</p>
+            {% if tutor.especialidades %}
+            <p><strong>Especialidades:</strong> {{ tutor.especialidades }}</p>
+            {% else %}
+            <p><strong>Especialidades:</strong> No especificadas</p>
+            {% endif %}
+        </div>
     </div>
 
-    <div class="info-card">
-      <h3>Modalidad</h3>
-      <p>{{ tutor.modalidad_preferida }}</p>
+    {% if tutor.bio_descripcion %}
+    <div class="info-card" style="flex: 1 1 100%;">
+        <h3><i class="fa-solid fa-user"></i> Sobre el tutor</h3>
+        <div class="sesion-body">
+            <p>{{ tutor.bio_descripcion }}</p>
+        </div>
     </div>
-  </div>
+    {% endif %}
+</div>
 
-  {% if tutor.especialidades %}
-    <div class="card">
-      <h3>Especialidades</h3>
-      <p>{{ tutor.especialidades }}</p>
-    </div>
-  {% endif %}
-
-  {% if tutor.bio_descripcion %}
-    <div class="card">
-      <h3>Sobre el tutor</h3>
-      <p>{{ tutor.bio_descripcion }}</p>
-    </div>
-  {% endif %}
-
-  <div class="card acciones">
-    <a href="{% url 'agendar_sesion' tutor.id %}" class="btn btn-primary btn-lg">Agendar sesión</a>
-    <a href="{% url 'buscar_tutor' %}" class="btn btn-secondary">Volver</a>
-  </div>
+<div class="sesion-actions" style="margin-top: 30px; justify-content: center;">
+    {% if user.is_authenticated %}
+    <a href="{% url 'agendar_sesion' tutor.id %}" class="btn btn-primary">
+        <i class="fa-solid fa-calendar-plus"></i> Agendar Sesión
+    </a>
+    {% else %}
+    <a href="{% url 'login' %}?next={% url 'agendar_sesion' tutor.id %}" class="btn btn-primary">
+        <i class="fa-solid fa-sign-in-alt"></i> Inicia Sesión para Agendar
+    </a>
+    {% endif %}
+    <a href="{% url 'buscar_tutor' %}" class="btn btn-secondary">
+        <i class="fa-solid fa-arrow-left"></i> Volver
+    </a>
 </div>
 {% endblock %}

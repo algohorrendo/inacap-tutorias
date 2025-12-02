@@ -1,81 +1,99 @@
 {% extends 'main/base.html' %}
 {% load static %}
+{% block title %}Mi Disponibilidad - INACAP Tutorías{% endblock %}
+
 {% block content %}
-<h2>Mi Disponibilidad como Tutor</h2>
+<div class="header">
+    <h1><i class="fa-solid fa-clock"></i> Mi Disponibilidad como Tutor</h1>
+    <p>Selecciona tus horarios disponibles para recibir solicitudes</p>
+</div>
+
+<div class="info-card" style="max-width: 100%; margin-bottom: 20px;">
+    <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
+        <i class="fa-solid fa-info-circle"></i> Haz clic en las celdas para marcar tus horarios disponibles. 
+        Las celdas verdes indican horarios seleccionados.
+    </p>
+</div>
 
 <form id="horarioForm" method="POST">
-  {% csrf_token %}
-  <table id="tablaHorario">
-    <thead>
-      <tr>
-        <th>Hora</th>
-        <th>Lunes</th>
-        <th>Martes</th>
-        <th>Miércoles</th>
-        <th>Jueves</th>
-        <th>Viernes</th>
-        <th>Sábado</th>
-        <th>Domingo</th>
-      </tr>
-    </thead>
-    <tbody>
-  {% for h in horas %}
-  <tr>
-    <td>{{ h }}</td>
-    {% for d in dias %}
-      {% with '' as clase %}
-        {% for item in horarios_guardados %}
-          {% if item.dia == d and item.hora == h %}
-            {% with 'selected' as clase %}
-            {% endwith %}
-          {% endif %}
-        {% endfor %}
-      <td data-dia="{{ d }}" data-hora="{{ h }}" class="{{ clase }}"></td>
-      {% endwith %}
-    {% endfor %}
-  </tr>
-  {% endfor %}
-</tbody>
-
-  </table>
-  <button type="submit" class="btn">Guardar Disponibilidad</button>
+    {% csrf_token %}
+    <div class="tabla-responsive">
+        <table id="tablaHorario">
+            <thead>
+                <tr>
+                    <th>Hora</th>
+                    <th>Lunes</th>
+                    <th>Martes</th>
+                    <th>Miércoles</th>
+                    <th>Jueves</th>
+                    <th>Viernes</th>
+                    <th>Sábado</th>
+                    <th>Domingo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for h in horas %}
+                <tr>
+                    <td><strong>{{ h }}</strong></td>
+                    {% for d in dias %}
+                    {% with '' as clase %}
+                        {% for item in horarios_guardados %}
+                            {% if item.dia == d and item.hora == h %}
+                                {% with 'selected' as clase %}
+                                {% endwith %}
+                            {% endif %}
+                        {% endfor %}
+                    <td data-dia="{{ d }}" data-hora="{{ h }}" class="{{ clase }}"></td>
+                    {% endwith %}
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="sesion-actions" style="margin-top: 20px; justify-content: center;">
+        <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-save"></i> Guardar Disponibilidad
+        </button>
+    </div>
 </form>
 
 <script>
-  // Añade clase "selected" cuando clickean en la celda
+// Añade clase "selected" cuando clickean en la celda
 document.querySelectorAll('#tablaHorario td[data-dia]').forEach(function(cell){
-  cell.addEventListener('click', function(){
-    this.classList.toggle('selected');
-  });
+    cell.addEventListener('click', function(){
+        this.classList.toggle('selected');
+    });
 });
 
 // Enviar datos al backend vía fetch (JSON)
 document.getElementById('horarioForm').addEventListener('submit', function(e){
-  e.preventDefault();
-  const cells = document.querySelectorAll('#tablaHorario td.selected');
-  const data = Array.from(cells).map(td => ({
-    dia: td.getAttribute('data-dia'),
-    hora: td.getAttribute('data-hora')
-  }));
+    e.preventDefault();
+    const cells = document.querySelectorAll('#tablaHorario td.selected');
+    const data = Array.from(cells).map(td => ({
+        dia: td.getAttribute('data-dia'),
+        hora: td.getAttribute('data-hora')
+    }));
 
-  fetch("{% url 'mi_disponibilidad' %}", {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': '{{ csrf_token }}'
-    },
-    body: JSON.stringify(data)
-  })
-  .then(response => response.json())  // PASO IMPORTANTE: Convertir a JSON
-  .then(resp => {
-    alert(resp.message);
-    
-  })
-  .catch(error => {
-    alert('Error en comunicación con el servidor: ' + error);
-  });
+    fetch("{% url 'mi_disponibilidad' %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(resp => {
+        alert(resp.message || 'Disponibilidad guardada exitosamente');
+        if (resp.success) {
+            location.reload();
+        }
+    })
+    .catch(error => {
+        alert('Error al guardar la disponibilidad: ' + error);
+    });
 });
-
 </script>
-
 {% endblock %}
