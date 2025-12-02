@@ -54,7 +54,7 @@ nav ul li a {
 
 nav ul li a:hover {
   background: #d8999b;
-  color: #e31e24;
+  color: #e63e44;
 }
 
 nav .icon {
@@ -112,7 +112,7 @@ h3 {
    BOTONES
    ============================================ */
 .btn {
-  background: #e31e24;
+  background: #e63e44;
   color: white;
   border-radius: 22px;
   border: none;
@@ -128,7 +128,7 @@ h3 {
 }
 
 .btn:hover {
-  background: #bf1a1f;
+  background: #e63e44;
   transform: translateY(-2px);
 }
 
@@ -180,7 +180,7 @@ h3 {
 
 .btn-enviar {
   padding: 10px 20px;
-  background: #e31e24;
+  background: #e63e44;
   color: white;
   border: none;
   border-radius: 22px;
@@ -262,7 +262,7 @@ h3 {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: #e31e24;
+  background: #e63e44;
   align-items: center;
   justify-content: center;
   color: white;
@@ -563,7 +563,7 @@ table {
 }
 
 thead {
-  background: linear-gradient(90deg, #e31e24, #bf1a1f);
+  background: linear-gradient(90deg, #e63e44, #bf1a1f);
   color: white;
 }
 
@@ -590,7 +590,7 @@ tbody tr:hover {
 }
 
 #tablaHorario thead {
-  background: linear-gradient(90deg, #e31e24, #bf1a1f);
+  background: linear-gradient(90deg, #e63e44, #bf1a1f);
   color: white;
   text-transform: uppercase;
   font-weight: bold;
@@ -716,7 +716,7 @@ tbody tr:hover {
 
 ::-webkit-scrollbar-thumb {
   border-radius: 3px;
-  background: #e31e24;
+  background: #e63e44;
 }
 
 /* ============================================
