@@ -1,16 +1,138 @@
 {% extends 'main/base.html' %}
-{% block title %}Recursos{% endblock %}
-{% block content %}
-<h2>Recursos Educativos</h2>
-<a href="{% url 'crear_recurso' %}">Agregar Recurso</a>
+{% load static %}
+{% block title %}Recursos Educativos - INACAP Tutorías{% endblock %}
 
-<ul>
-  {% for r in recursos %}
-    <li>
-      <a href="{{ r.archivo.url }}" download>{{ r.titulo }}</a> ({{ r.tipo }})
-    </li>
-  {% empty %}
-    <li>No hay recursos.</li>
-  {% endfor %}
-</ul>
+{% block content %}
+<div class="header">
+    <h1><i class="fa-solid fa-book"></i> Recursos Educativos</h1>
+    <p>Material de apoyo para tus estudios</p>
+</div>
+
+<!-- Barra de búsqueda y filtros -->
+<div class="info-card" style="max-width: 100%; margin-bottom: 20px;">
+    <form method="get" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end;">
+        <div class="form-group" style="flex: 1 1 300px; margin: 0;">
+            <label for="q">Buscar</label>
+            <input type="text" name="q" id="q" value="{{ query }}" placeholder="Buscar por título, descripción o asignatura..." style="width: 100%;">
+        </div>
+        
+        <div class="form-group" style="flex: 1 1 200px; margin: 0;">
+            <label for="asignatura">Asignatura</label>
+            <select name="asignatura" id="asignatura" style="width: 100%;">
+                <option value="">Todas</option>
+                {% for asig in asignaturas %}
+                <option value="{{ asig.id }}" {% if asignatura_selected == asig.id|stringformat:"s" %}selected{% endif %}>
+                    {{ asig.nombre }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group" style="flex: 1 1 150px; margin: 0;">
+            <label for="tipo">Tipo</label>
+            <select name="tipo" id="tipo" style="width: 100%;">
+                <option value="">Todos</option>
+                <option value="Guia" {% if tipo_selected == "Guia" %}selected{% endif %}>Guía</option>
+                <option value="Ejercicios" {% if tipo_selected == "Ejercicios" %}selected{% endif %}>Ejercicios</option>
+                <option value="Video" {% if tipo_selected == "Video" %}selected{% endif %}>Video</option>
+                <option value="Documento" {% if tipo_selected == "Documento" %}selected{% endif %}>Documento</option>
+                <option value="Presentacion" {% if tipo_selected == "Presentacion" %}selected{% endif %}>Presentación</option>
+            </select>
+        </div>
+        
+        <div style="flex: 0 0 auto;">
+            <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-search"></i> Buscar
+            </button>
+            {% if query or asignatura_selected or tipo_selected %}
+            <a href="{% url 'lista_recursos' %}" class="btn btn-secondary">
+                <i class="fa-solid fa-times"></i> Limpiar
+            </a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+{% if user.is_authenticated and user.es_tutor %}
+<div class="sesion-actions">
+    <a href="{% url 'crear_recurso' %}" class="btn btn-primary">
+        <i class="fa-solid fa-plus"></i> Crear Nuevo Recurso
+    </a>
+</div>
+{% endif %}
+
+{% if recursos %}
+<div class="info-grid">
+    {% for recurso in recursos %}
+    <div class="info-card">
+        <div class="sesion-header">
+            <h3><i class="fa-solid fa-file"></i> {{ recurso.titulo }}</h3>
+            <span class="badge">{{ recurso.get_tipo_display }}</span>
+        </div>
+        
+        <div class="sesion-body">
+            <p><strong>Asignatura:</strong> {{ recurso.asignatura.nombre }}</p>
+            <p><strong>Tutor:</strong> {{ recurso.tutor.usuario.get_full_name }}</p>
+            {% if recurso.descripcion %}
+            <p><strong>Descripción:</strong> {{ recurso.descripcion|truncatewords:20 }}</p>
+            {% endif %}
+            <p><strong>Descargas:</strong> {{ recurso.descargas }}</p>
+            <p><strong>Fecha:</strong> {{ recurso.fecha_creacion|date:"d/m/Y" }}</p>
+        </div>
+        
+        <div class="sesion-actions">
+            {% if recurso.archivo %}
+            <a href="{% url 'descargar_recurso' recurso.id %}" class="btn btn-success btn-sm">
+                <i class="fa-solid fa-download"></i> Descargar
+            </a>
+            {% endif %}
+            {% if recurso.contenido %}
+            <button class="btn btn-info btn-sm" onclick="mostrarContenido({{ recurso.id }}, '{{ recurso.titulo|escapejs }}', '{{ recurso.contenido|escapejs }}')">
+                <i class="fa-solid fa-eye"></i> Ver Contenido
+            </button>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="sin-contenido">
+    <i class="fa-solid fa-inbox" style="font-size: 48px; color: #999; margin-bottom: 15px;"></i>
+    <p>No hay recursos disponibles aún.</p>
+    {% if user.is_authenticated and user.es_tutor %}
+    <a href="{% url 'crear_recurso' %}" class="btn btn-primary" style="margin-top: 15px;">
+        <i class="fa-solid fa-plus"></i> Crear el Primer Recurso
+    </a>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- Modal para mostrar contenido -->
+<div id="contenido-modal" class="modal">
+    <div class="modal-content" style="max-width: 700px;">
+        <span class="close" onclick="cerrarModal()">&times;</span>
+        <h3 id="modal-titulo"></h3>
+        <div id="modal-contenido" style="max-height: 500px; overflow-y: auto; white-space: pre-wrap; background: #f9f9fb; padding: 15px; border-radius: 8px; margin-top: 15px;"></div>
+    </div>
+</div>
+
+<script>
+function mostrarContenido(recursoId, titulo, contenido) {
+    document.getElementById('modal-titulo').textContent = titulo;
+    document.getElementById('modal-contenido').textContent = contenido || 'No hay contenido disponible.';
+    document.getElementById('contenido-modal').style.display = 'block';
+}
+
+function cerrarModal() {
+    document.getElementById('contenido-modal').style.display = 'none';
+}
+
+// Cerrar modal al hacer click fuera
+window.onclick = function(event) {
+    const modal = document.getElementById('contenido-modal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+}
+</script>
 {% endblock %}

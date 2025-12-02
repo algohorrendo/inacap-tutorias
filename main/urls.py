@@ -22,6 +22,7 @@ urlpatterns = [
     path('agendar/<int:tutor_id>/', views.agendar_sesion, name='agendar_sesion'),
     path('recursos/', views.lista_recursos, name='lista_recursos'),
     path('recursos/crear/', views.crear_recurso, name='crear_recurso'),
+    path('recursos/<int:recurso_id>/descargar/', views.descargar_recurso, name='descargar_recurso'),
     path('notificaciones/', views.notificaciones, name='notificaciones'),
     path('perfil/', views.perfil_usuario, name='perfil_usuario'),
     path('registro/', views.registro_view, name='registro'),

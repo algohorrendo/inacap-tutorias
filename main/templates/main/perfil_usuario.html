@@ -1,33 +1,66 @@
 {% extends 'main/base.html' %}
+{% block title %}Mi Perfil - INACAP Tutorías{% endblock %}
+
 {% block content %}
-<div class="cards">
-<section class="card">
-  <h2>Perfil de Usuario</h2>
-  <div>
-    <strong>Nombre:</strong> {{ usuario.first_name }} {{ usuario.last_name }} <br>
-    <strong>RUT:</strong> {{ usuario.rut }}<br>
-    <strong>Sede:</strong> {{ usuario.sede }}<br>
-    <strong>Carrera:</strong> {{ usuario.carrera }}<br>
-    {% if not usuario.es_tutor %}
-    <strong>Semestre:</strong> {{ usuario.semestre_actual }}<br>
+<div class="header">
+    <h1><i class="fa-solid fa-user"></i> Mi Perfil</h1>
+    <p>Información de tu cuenta</p>
+</div>
+
+<div class="info-grid">
+    <div class="info-card">
+        <h3><i class="fa-solid fa-id-card"></i> Información Personal</h3>
+        <div class="sesion-body">
+            <p><strong>Nombre completo:</strong> {{ usuario.get_full_name }}</p>
+            <p><strong>RUT:</strong> {{ usuario.rut }}</p>
+            <p><strong>Email:</strong> {{ usuario.email|default:"No especificado" }}</p>
+            <p><strong>Sede:</strong> {{ usuario.sede|default:"No especificado" }}</p>
+            <p><strong>Carrera:</strong> {{ usuario.carrera|default:"No especificado" }}</p>
+            {% if not usuario.es_tutor %}
+            <p><strong>Semestre actual:</strong> {{ usuario.semestre_actual|default:"No especificado" }}</p>
+            <p><strong>Promedio general:</strong> {{ usuario.promedio_general|default:"No especificado" }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if usuario.es_tutor and usuario.tutor_profile %}
+    <div class="info-card">
+        <h3><i class="fa-solid fa-user-graduate"></i> Perfil de Tutor</h3>
+        <div class="sesion-body">
+            <p><strong>Nivel:</strong> <span class="badge nivel-{{ usuario.tutor_profile.nivel|lower }}">{{ usuario.tutor_profile.nivel }}</span></p>
+            <p><strong>Calificación promedio:</strong> {{ usuario.tutor_profile.calificacion_promedio|floatformat:1 }}/5.0</p>
+            <p><strong>Horas acumuladas:</strong> {{ usuario.tutor_profile.horas_acumuladas }}h</p>
+            <p><strong>Años de experiencia:</strong> {{ usuario.tutor_profile.años_experiencia }}</p>
+            <p><strong>Total sesiones:</strong> {{ usuario.tutor_profile.total_sesiones }}</p>
+            {% if usuario.tutor_profile.especialidades %}
+            <p><strong>Especialidades:</strong> {{ usuario.tutor_profile.especialidades }}</p>
+            {% endif %}
+        </div>
+        <div class="sesion-actions">
+            <a href="{% url 'mi_disponibilidad' %}" class="btn btn-primary btn-sm">
+                <i class="fa-solid fa-clock"></i> Gestionar Disponibilidad
+            </a>
+        </div>
+    </div>
     {% endif %}
-    {% if not usuario.es_tutor %}
-      <strong>Promedio:</strong> {{ usuario.promedio_general }}<br>
-    {% endif %}
-    {% if usuario.es_tutor %}
-      <strong>¡Eres Tutor! Revisa tu <a href="{% url 'mi_disponibilidad' %}">Disponibilidad</a></strong><br>
-    {% endif %}
-  </div>
-</section>
-<section class="card">
-  <h3>Logros</h3>
-  <ul>
-    {% for l in usuario.logros.all %}
-      <li>{{ l.logro.icono }} {{ l.logro.nombre }} - {{ l.logro.descripcion }}</li>
-    {% empty %}
-      <li>Aún no tienes logros.</li>
-    {% endfor %}
-  </ul>
-</section>
+
+    <div class="info-card">
+        <h3><i class="fa-solid fa-trophy"></i> Logros</h3>
+        <div class="sesion-body">
+            {% if usuario.logros.all %}
+            <ul style="list-style: none; padding: 0;">
+                {% for usuario_logro in usuario.logros.all %}
+                <li style="padding: 10px; background: #f9f9fb; border-radius: 8px; margin-bottom: 8px;">
+                    <strong>{{ usuario_logro.logro.icono }} {{ usuario_logro.logro.nombre }}</strong><br>
+                    <small style="color: #666;">{{ usuario_logro.logro.descripcion }}</small><br>
+                    <small style="color: #999;">Obtenido: {{ usuario_logro.fecha_obtencion|date:"d/m/Y" }}</small>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="sin-contenido" style="margin: 0;">Aún no has obtenido logros. ¡Sigue participando!</p>
+            {% endif %}
+        </div>
+    </div>
 </div>
 {% endblock %}

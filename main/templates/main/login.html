@@ -1,12 +1,63 @@
 {% extends 'main/base.html' %}
-{% block title %}Login{% endblock %}
+{% block title %}Iniciar Sesión - INACAP Tutorías{% endblock %}
+
 {% block content %}
-<h2>Iniciar Sesión</h2>
+<div class="header">
+    <h1><i class="fa-solid fa-sign-in-alt"></i> Iniciar Sesión</h1>
+    <p>Accede a tu cuenta de tutorías</p>
+</div>
+
 <form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  {% if error %}<p class="error">{{ error }}</p>{% endif %}
-  <button type="submit">Ingresar</button>
+    {% csrf_token %}
+    
+    {% if form.non_field_errors %}
+    <div class="mensaje-error">
+        {% for error in form.non_field_errors %}
+        <p>{{ error }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="form-group">
+        <label for="{{ form.rut.id_for_label }}">{{ form.rut.label }}</label>
+        {{ form.rut }}
+        {% if form.rut.errors %}
+        <ul class="errorlist">
+            {% for error in form.rut.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+        {{ form.password }}
+        {% if form.password.errors %}
+        <ul class="errorlist">
+            {% for error in form.password.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+
+    {% if error %}
+    <div class="mensaje-error">
+        <p><i class="fa-solid fa-exclamation-triangle"></i> {{ error }}</p>
+    </div>
+    {% endif %}
+
+    <div class="sesion-actions">
+        <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-sign-in-alt"></i> Ingresar
+        </button>
+    </div>
 </form>
-<p>¿No tienes una cuenta? <a href="{% url 'registro' %}">Regístrate</a></p>
+
+<div style="text-align: center; margin-top: 20px;">
+    <p>¿No tienes una cuenta? <a href="{% url 'registro' %}" class="btn btn-secondary btn-sm">
+        <i class="fa-solid fa-user-plus"></i> Regístrate
+    </a></p>
+</div>
 {% endblock %}

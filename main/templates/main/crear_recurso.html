@@ -1,10 +1,96 @@
 {% extends 'main/base.html' %}
-{% block title %}Crear Recurso{% endblock %}
+{% block title %}Crear Recurso - INACAP Tutorías{% endblock %}
+
 {% block content %}
-<h2>Crear Recurso</h2>
+<div class="header">
+    <h1><i class="fa-solid fa-plus-circle"></i> Crear Nuevo Recurso</h1>
+    <p>Comparte material educativo con la comunidad</p>
+</div>
+
 <form method="post" enctype="multipart/form-data">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Guardar</button>
+    {% csrf_token %}
+    
+    <div class="form-group">
+        <label for="{{ form.asignatura.id_for_label }}">{{ form.asignatura.label }}</label>
+        {{ form.asignatura }}
+        {% if form.asignatura.errors %}
+        <ul class="errorlist">
+            {% for error in form.asignatura.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.titulo.id_for_label }}">{{ form.titulo.label }}</label>
+        {{ form.titulo }}
+        {% if form.titulo.errors %}
+        <ul class="errorlist">
+            {% for error in form.titulo.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.descripcion.id_for_label }}">{{ form.descripcion.label }}</label>
+        {{ form.descripcion }}
+        {% if form.descripcion.errors %}
+        <ul class="errorlist">
+            {% for error in form.descripcion.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.tipo.id_for_label }}">{{ form.tipo.label }}</label>
+        {{ form.tipo }}
+        {% if form.tipo.errors %}
+        <ul class="errorlist">
+            {% for error in form.tipo.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.archivo.id_for_label }}">{{ form.archivo.label }}</label>
+        {{ form.archivo }}
+        <small style="color: #666; font-size: 12px;">Opcional: Sube un archivo PDF, DOCX, etc.</small>
+        {% if form.archivo.errors %}
+        <ul class="errorlist">
+            {% for error in form.archivo.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.contenido.id_for_label }}">{{ form.contenido.label }}</label>
+        {{ form.contenido }}
+        <small style="color: #666; font-size: 12px;">Opcional: Escribe contenido directamente aquí</small>
+        {% if form.contenido.errors %}
+        <ul class="errorlist">
+            {% for error in form.contenido.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+
+    <div class="sesion-actions">
+        <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-save"></i> Guardar Recurso
+        </button>
+        <a href="{% url 'lista_recursos' %}" class="btn btn-secondary">
+            <i class="fa-solid fa-times"></i> Cancelar
+        </a>
+    </div>
 </form>
 {% endblock %}

@@ -1,36 +1,113 @@
 {% extends 'main/base.html' %}
-{% block title %}Buscar Tutor{% endblock %}
-{% block content %}
-<div class="buscar-container">
-  <h1>Buscar Tutor</h1>
-  
-  <form method="GET" class="filtro-form">
-    <input type="text" name="nombre" placeholder="Buscar por nombre..." value="{{ request.GET.nombre }}">
-    <input type="text" name="especialidad" placeholder="Buscar por especialidad..." value="{{ request.GET.especialidad }}">
-    <button type="submit" class="btn">Buscar</button>
-  </form>
+{% block title %}Buscar Tutor - INACAP Tutorías{% endblock %}
 
-  {% if tutores %}
-    <div class="cards">
-      {% for tutor in tutores %}
-        <div class="card">
-          <h3>{{ tutor.usuario.get_full_name }}</h3>
-          <p class="nivel">{{ tutor.nivel }}</p>
-          <p><strong>Modalidad:</strong> {{ tutor.modalidad_preferida }}</p>
-          <p><strong>Especialidades:</strong> {{ tutor.especialidades|default:"No especificadas" }}</p>
-          <p><strong>Sesiones completadas:</strong> {{ tutor.total_sesiones }}</p>
-          {% if tutor.bio_descripcion %}
-            <p><strong>Sobre el tutor:</strong> {{ tutor.bio_descripcion }}</p>
-          {% endif %}
-          <div class="card-actions">
-            <a href="{% url 'perfil_tutor' tutor.id %}" class="btn">Ver perfil</a>
-            <a href="{% url 'agendar_sesion' tutor.id %}" class="btn btn-primary">Agendar sesión</a>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-  {% else %}
-    <p class="sin-resultados">No se encontraron tutores. Intenta con otro nombre.</p>
-  {% endif %}
+{% block content %}
+<div class="header">
+    <h1><i class="fa-solid fa-search"></i> Buscar Tutor</h1>
+    <p>Encuentra el tutor perfecto para tus necesidades</p>
 </div>
+
+<!-- Formulario de búsqueda avanzada -->
+<div class="info-card" style="max-width: 100%; margin-bottom: 20px;">
+    <form method="get" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end;">
+        <div class="form-group" style="flex: 1 1 250px; margin: 0;">
+            <label for="nombre">Nombre</label>
+            <input type="text" name="nombre" id="nombre" value="{{ nombre }}" placeholder="Buscar por nombre..." style="width: 100%;">
+        </div>
+        
+        <div class="form-group" style="flex: 1 1 250px; margin: 0;">
+            <label for="especialidad">Especialidad</label>
+            <input type="text" name="especialidad" id="especialidad" value="{{ especialidad }}" placeholder="Ej: Programación, Cálculo..." style="width: 100%;">
+        </div>
+        
+        <div class="form-group" style="flex: 1 1 150px; margin: 0;">
+            <label for="nivel">Nivel</label>
+            <select name="nivel" id="nivel" style="width: 100%;">
+                <option value="">Todos</option>
+                <option value="Novato" {% if nivel == "Novato" %}selected{% endif %}>Novato</option>
+                <option value="Principiante" {% if nivel == "Principiante" %}selected{% endif %}>Principiante</option>
+                <option value="Intermedio" {% if nivel == "Intermedio" %}selected{% endif %}>Intermedio</option>
+                <option value="Avanzado" {% if nivel == "Avanzado" %}selected{% endif %}>Avanzado</option>
+                <option value="Erudito" {% if nivel == "Erudito" %}selected{% endif %}>Erudito</option>
+                <option value="Iluminado" {% if nivel == "Iluminado" %}selected{% endif %}>Iluminado</option>
+            </select>
+        </div>
+        
+        <div class="form-group" style="flex: 1 1 200px; margin: 0;">
+            <label for="asignatura">Asignatura</label>
+            <select name="asignatura" id="asignatura" style="width: 100%;">
+                <option value="">Todas</option>
+                {% for asig in asignaturas %}
+                <option value="{{ asig.id }}" {% if asignatura_selected == asig.id|stringformat:"s" %}selected{% endif %}>
+                    {{ asig.nombre }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group" style="flex: 1 1 120px; margin: 0;">
+            <label for="calificacion_min">Calif. mín.</label>
+            <input type="number" name="calificacion_min" id="calificacion_min" value="{{ calificacion_min }}" min="1" max="5" step="0.1" placeholder="3.0" style="width: 100%;">
+        </div>
+        
+        <div style="flex: 0 0 auto;">
+            <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-search"></i> Buscar
+            </button>
+            {% if nombre or especialidad or nivel or asignatura_selected or calificacion_min %}
+            <a href="{% url 'buscar_tutor' %}" class="btn btn-secondary">
+                <i class="fa-solid fa-times"></i> Limpiar
+            </a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+{% if tutores %}
+<div class="cards">
+    {% for tutor in tutores %}
+    <div class="card">
+        <div class="sesion-header">
+            <h3><i class="fa-solid fa-user-graduate"></i> {{ tutor.usuario.get_full_name }}</h3>
+            <span class="badge nivel-{{ tutor.nivel|lower }}">{{ tutor.nivel }}</span>
+        </div>
+        
+        <div class="sesion-body">
+            <p><strong>Calificación:</strong> 
+                <span style="color: #4caf50; font-weight: bold;">{{ tutor.calificacion_promedio|floatformat:1 }}</span>/5.0
+                <span style="color: #ff9800;">{% for i in "12345" %}{% if forloop.counter <= tutor.calificacion_promedio %}★{% else %}☆{% endif %}{% endfor %}</span>
+            </p>
+            <p><strong>Modalidad:</strong> {{ tutor.get_modalidad_preferida_display }}</p>
+            <p><strong>Especialidades:</strong> {{ tutor.especialidades|default:"No especificadas"|truncatewords:10 }}</p>
+            <p><strong>Sesiones completadas:</strong> {{ tutor.total_sesiones }}</p>
+            <p><strong>Horas acumuladas:</strong> {{ tutor.horas_acumuladas }}h</p>
+            {% if tutor.bio_descripcion %}
+            <p><strong>Sobre el tutor:</strong> {{ tutor.bio_descripcion|truncatewords:15 }}</p>
+            {% endif %}
+        </div>
+        
+        <div class="sesion-actions">
+            <a href="{% url 'perfil_tutor' tutor.id %}" class="btn btn-info btn-sm">
+                <i class="fa-solid fa-user"></i> Ver Perfil
+            </a>
+            {% if user_authenticated %}
+            <a href="{% url 'agendar_sesion' tutor.id %}" class="btn btn-primary btn-sm">
+                <i class="fa-solid fa-calendar-plus"></i> Agendar
+            </a>
+            {% else %}
+            <a href="{% url 'login' %}?next={% url 'agendar_sesion' tutor.id %}" class="btn btn-primary btn-sm">
+                <i class="fa-solid fa-sign-in-alt"></i> Inicia Sesión
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="sin-contenido">
+    <i class="fa-solid fa-search" style="font-size: 48px; color: #999; margin-bottom: 15px;"></i>
+    <p>No se encontraron tutores con los criterios seleccionados.</p>
+    <p style="font-size: 14px; color: #666;">Intenta ajustar los filtros de búsqueda.</p>
+</div>
+{% endif %}
 {% endblock %}

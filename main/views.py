@@ -187,19 +187,42 @@ def dashboard(request):
 
 
 def buscar_tutor(request):
-    tutores = Tutor.objects.filter(activo=True).order_by('-calificacion_promedio')
+    """Búsqueda avanzada de tutores con múltiples filtros"""
+    tutores = Tutor.objects.filter(activo=True).select_related('usuario').order_by('-calificacion_promedio')
     
     nombre = request.GET.get('nombre', '')
     especialidad = request.GET.get('especialidad', '')
+    nivel = request.GET.get('nivel', '')
+    asignatura_id = request.GET.get('asignatura', '')
+    calificacion_min = request.GET.get('calificacion_min', '')
 
     if nombre:
         tutores = tutores.filter(Q(usuario__first_name__icontains=nombre) | 
                                 Q(usuario__last_name__icontains=nombre))
     if especialidad:
         tutores = tutores.filter(especialidades__icontains=especialidad)
+    if nivel:
+        tutores = tutores.filter(nivel=nivel)
+    if asignatura_id:
+        tutores = tutores.filter(asignaturas__id=asignatura_id).distinct()
+    if calificacion_min:
+        try:
+            cal_min = float(calificacion_min)
+            tutores = tutores.filter(calificacion_promedio__gte=cal_min)
+        except ValueError:
+            pass
 
+    # Obtener asignaturas para el filtro
+    asignaturas = Asignatura.objects.filter(activo=True).order_by('nombre')
+    
     return render(request, 'main/buscar_tutor.html', {
         'tutores': tutores,
+        'asignaturas': asignaturas,
+        'nombre': nombre,
+        'especialidad': especialidad,
+        'nivel': nivel,
+        'asignatura_selected': asignatura_id,
+        'calificacion_min': calificacion_min,
         'user_authenticated': request.user.is_authenticated
     })
 
@@ -497,13 +520,46 @@ def enviar_mensaje(request, sesion_id):
 
 @login_required
 def lista_recursos(request):
-    recursos = RecursoEducativo.objects.filter(activo=True).order_by('-fecha_creacion')
-    return render(request, 'main/lista_recursos.html', {'recursos': recursos})
+    """Lista de recursos educativos con búsqueda y filtros"""
+    recursos = RecursoEducativo.objects.filter(activo=True).select_related('tutor__usuario', 'asignatura')
+    
+    # Búsqueda por título o descripción
+    query = request.GET.get('q', '')
+    if query:
+        recursos = recursos.filter(
+            Q(titulo__icontains=query) | 
+            Q(descripcion__icontains=query) |
+            Q(asignatura__nombre__icontains=query)
+        )
+    
+    # Filtro por asignatura
+    asignatura_id = request.GET.get('asignatura', '')
+    if asignatura_id:
+        recursos = recursos.filter(asignatura_id=asignatura_id)
+    
+    # Filtro por tipo
+    tipo = request.GET.get('tipo', '')
+    if tipo:
+        recursos = recursos.filter(tipo=tipo)
+    
+    recursos = recursos.order_by('-fecha_creacion')
+    
+    # Obtener asignaturas para el filtro
+    asignaturas = Asignatura.objects.filter(activo=True).order_by('nombre')
+    
+    return render(request, 'main/lista_recursos.html', {
+        'recursos': recursos,
+        'asignaturas': asignaturas,
+        'query': query,
+        'asignatura_selected': asignatura_id,
+        'tipo_selected': tipo,
+    })
 
 @login_required
 def crear_recurso(request):
-    # Solo tutores pueden crear recursos
+    """Crear nuevo recurso educativo - Solo tutores"""
     if not hasattr(request.user, 'tutor_profile'):
+        messages.error(request, 'Solo los tutores pueden crear recursos.')
         return redirect('dashboard')
     
     tutor = request.user.tutor_profile
@@ -514,11 +570,46 @@ def crear_recurso(request):
             recurso = form.save(commit=False)
             recurso.tutor = tutor
             recurso.save()
+            messages.success(request, f'Recurso "{recurso.titulo}" creado exitosamente.')
             return redirect('lista_recursos')
+        else:
+            messages.error(request, 'Por favor corrige los errores en el formulario.')
     else:
         form = RecursoEducativoForm()
     
     return render(request, 'main/crear_recurso.html', {'form': form})
+
+
+@login_required
+def descargar_recurso(request, recurso_id):
+    """Descargar recurso e incrementar contador"""
+    recurso = get_object_or_404(RecursoEducativo, pk=recurso_id, activo=True)
+    
+    if not recurso.archivo:
+        messages.error(request, 'Este recurso no tiene archivo adjunto.')
+        return redirect('lista_recursos')
+    
+    try:
+        # Incrementar contador de descargas
+        recurso.descargas += 1
+        recurso.save(update_fields=['descargas'])
+        
+        # Retornar el archivo para descarga
+        from django.http import FileResponse
+        import os
+        file_path = recurso.archivo.path
+        if os.path.exists(file_path):
+            return FileResponse(
+                open(file_path, 'rb'),
+                as_attachment=True,
+                filename=os.path.basename(recurso.archivo.name)
+            )
+        else:
+            messages.error(request, 'El archivo no se encuentra disponible.')
+            return redirect('lista_recursos')
+    except Exception as e:
+        messages.error(request, f'Error al descargar el archivo: {str(e)}')
+        return redirect('lista_recursos')
 
 @login_required
 def notificaciones(request):
