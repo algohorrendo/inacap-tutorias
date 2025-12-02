@@ -29,3 +29,4 @@ psycopg[binary]==3.2.3
 # MySQL client (for Railway MySQL database)
 # Using PyMySQL instead of mysqlclient (no compilation needed)
 PyMySQL==1.1.0
+cryptography==41.0.7
