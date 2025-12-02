@@ -113,28 +113,12 @@ python manage.py runserver
 ```
 
 9. **Acceder a la aplicación**
-- Sitio web: http://localhost:8000
-- Admin Django: http://localhost:8000/admin
-- API REST: http://localhost:8000/api/
+- Sitio web:https://inacap-tutorias-production.up.railway.app/
+- Admin Django:https://inacap-tutorias-production.up.railway.app/admin
+- API REST:https://inacap-tutorias-production.up.railway.app/api/
 
-## 🌍 Despliegue en Producción (Render)
 
-1. **Crear cuenta en Render.com**
-
-2. **Crear nuevo Web Service**
-   - Conectar repositorio de GitHub
-   - Build Command: `./build.sh`
-   - Start Command: `gunicorn inacap_tutorias.wsgi:application`
-
-3. **Configurar variables de entorno en Render**
-```
-SECRET_KEY=tu-clave-secreta-muy-larga
-DEBUG=False
-DATABASE_URL=postgres://... (proporcionado por Render)
-PRODUCTION_URL=https://tu-app.onrender.com
-```
-
-4. **Crear base de datos PostgreSQL en Render**
+4. **Crear base de datos MySQL en Railway**
 
 ## 📡 Endpoints de la API
 
