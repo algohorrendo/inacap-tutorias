@@ -3,6 +3,13 @@ from pathlib import Path
 from decouple import config, Csv  # Importar python-decouple
 import dj_database_url
 
+# Configurar PyMySQL como driver MySQL (compatible con Railway)
+try:
+    import pymysql
+    pymysql.install_as_MySQLdb()
+except ImportError:
+    pass
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ===========================================

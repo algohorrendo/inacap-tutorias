@@ -27,4 +27,5 @@ gunicorn==21.2.0
 psycopg[binary]==3.2.3
 
 # MySQL client (for Railway MySQL database)
-mysqlclient==2.2.0
+# Using PyMySQL instead of mysqlclient (no compilation needed)
+PyMySQL==1.1.0
