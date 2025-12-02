@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Script de build para Render
+# Script de build para Railway/Render
 
 set -o errexit
+set -e
 
 # Instalar dependencias
 pip install -r requirements.txt
