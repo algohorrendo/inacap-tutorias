@@ -1,6 +1,6 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "pip install -r requirements.txt && python manage.py migrate --no-input && python manage.py collectstatic --no-input"
+buildCommand = "pip install -r requirements.txt && python manage.py migrate --no-input && python manage.py collectstatic --no-input && python populate_db.py"
 
 [deploy]
 startCommand = "gunicorn inacap_tutorias.wsgi:application"
