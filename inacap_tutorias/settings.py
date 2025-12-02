@@ -97,14 +97,36 @@ DATABASES = {
     }
 }
 
-# Usar DATABASE_URL si está disponible (para Render/Railway con PostgreSQL)
+# Usar DATABASE_URL si está disponible (para Railway/Render con MySQL o PostgreSQL)
 DATABASE_URL = config('DATABASE_URL', default=None)
 if DATABASE_URL:
-    DATABASES['default'] = dj_database_url.config(
-        default=DATABASE_URL,
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
+    # Si la URL es MySQL, configurar manualmente
+    if 'mysql://' in DATABASE_URL or 'mysql2://' in DATABASE_URL:
+        from urllib.parse import urlparse
+        
+        # Parsear la URL MySQL
+        # Formato: mysql://user:password@host:port/database
+        parsed = urlparse(DATABASE_URL.replace('mysql2://', 'mysql://'))
+        
+        DATABASES['default'] = {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': parsed.path.lstrip('/'),
+            'USER': parsed.username or 'root',
+            'PASSWORD': parsed.password or '',
+            'HOST': parsed.hostname or 'localhost',
+            'PORT': parsed.port or 3306,
+            'OPTIONS': {
+                'charset': 'utf8mb4',
+                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            },
+        }
+    else:
+        # Para PostgreSQL u otros
+        DATABASES['default'] = dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
 
 # ===========================================
 # VALIDACIÓN DE CONTRASEÑAS

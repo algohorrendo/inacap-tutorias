@@ -25,3 +25,6 @@ gunicorn==21.2.0
 # psycopg for PostgreSQL (Render uses PostgreSQL)
 # Using psycopg3 for better Python 3.13 compatibility
 psycopg[binary]==3.2.3
+
+# MySQL client (for Railway MySQL database)
+mysqlclient==2.2.0
