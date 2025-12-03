@@ -43,33 +43,61 @@ def api_client(request):
 # PROXY PARA APIs EXTERNAS (evitar CORS)
 # ============================================
 @login_required
-@user_passes_test(is_admin)
-def proxy_countries(request):
-    """Proxy para API de países de Sudamérica"""
+def proxy_openlibrary(request):
+    """
+    Proxy para Open Library API - Buscar libros educativos
+    Permite a los tutores encontrar recursos bibliográficos para recomendar a estudiantes
+    Versión pública: solo requiere login (no admin)
+    """
+    query = request.GET.get('q', 'mathematics')  # Query de búsqueda, por defecto matemáticas
+    limit = request.GET.get('limit', '10')  # Límite de resultados
+    
+    # Validar y ajustar límite
     try:
-        response = requests.get(
-            'https://restcountries.com/v3.1/region/south%20america',
-            timeout=10
-        )
-        return JsonResponse(response.json(), safe=False)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
-
-@login_required
-@user_passes_test(is_admin)
-def proxy_jsonplaceholder(request, endpoint):
-    """Proxy para JSONPlaceholder API"""
-    allowed_endpoints = ['posts', 'users', 'comments', 'todos']
-    if endpoint not in allowed_endpoints:
-        return JsonResponse({'error': 'Endpoint no permitido'}, status=400)
+        limit_int = int(limit)
+        if limit_int > 20:
+            limit_int = 20  # Máximo 20 resultados
+        elif limit_int < 1:
+            limit_int = 1
+        limit = str(limit_int)
+    except (ValueError, TypeError):
+        limit = '10'
     
     try:
+        # Buscar libros en Open Library
         response = requests.get(
-            f'https://jsonplaceholder.typicode.com/{endpoint}?_limit=10',
+            f'https://openlibrary.org/search.json',
+            params={
+                'q': query,
+                'limit': limit,
+                'fields': 'title,author_name,first_publish_year,subject,isbn,number_of_pages_median'
+            },
             timeout=10
         )
-        return JsonResponse(response.json(), safe=False)
+        
+        if response.status_code == 200:
+            data = response.json()
+            # Formatear la respuesta para que sea más útil
+            books = []
+            limit_count = int(limit)
+            for doc in data.get('docs', [])[:limit_count]:
+                books.append({
+                    'title': doc.get('title', 'Sin título'),
+                    'author': doc.get('author_name', ['Autor desconocido'])[0] if doc.get('author_name') else 'Autor desconocido',
+                    'year': doc.get('first_publish_year', 'N/A'),
+                    'subjects': doc.get('subject', [])[:3],  # Primeros 3 temas
+                    'isbn': doc.get('isbn', ['N/A'])[0] if doc.get('isbn') else 'N/A',
+                    'pages': doc.get('number_of_pages_median', 'N/A')
+                })
+            
+            return JsonResponse({
+                'query': query,
+                'total_results': data.get('numFound', 0),
+                'books': books
+            }, safe=False)
+        else:
+            return JsonResponse({'error': f'Error en la API: {response.status_code}'}, status=500)
+            
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 

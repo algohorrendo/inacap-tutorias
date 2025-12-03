@@ -7,6 +7,57 @@
     <p>Comparte material educativo con la comunidad</p>
 </div>
 
+<!-- Panel de búsqueda de libros (colapsable) -->
+<div class="info-card" style="margin-bottom: 25px; border: 2px solid #7f7fd5;">
+    <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleBookSearch()">
+        <h3 style="margin: 0; color: #7f7fd5;">
+            <i class="fa-solid fa-book"></i> Buscar Libros Recomendados
+        </h3>
+        <i id="book-search-icon" class="fa-solid fa-chevron-down" style="color: #7f7fd5; transition: transform 0.3s;"></i>
+    </div>
+    
+    <div id="book-search-panel" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+        <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
+            Busca libros educativos relacionados con tu recurso para incluirlos como referencia bibliográfica.
+        </p>
+        
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
+            <input 
+                type="text" 
+                id="book-search-query" 
+                placeholder="Ej: matemáticas, física, programación..."
+                style="flex: 1; min-width: 200px; padding: 10px 15px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;"
+                onkeypress="if(event.key === 'Enter') searchBooksForResource()"
+            />
+            <select id="book-search-limit" style="padding: 10px 15px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+                <option value="5">5 resultados</option>
+                <option value="10" selected>10 resultados</option>
+                <option value="15">15 resultados</option>
+            </select>
+            <button class="btn btn-primary" onclick="searchBooksForResource()" style="white-space: nowrap;">
+                <i class="fa-solid fa-search"></i> Buscar
+            </button>
+        </div>
+        
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px;">
+            <button class="btn btn-secondary btn-sm" onclick="quickBookSearch('mathematics')">
+                <i class="fa-solid fa-calculator"></i> Matemáticas
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="quickBookSearch('physics')">
+                <i class="fa-solid fa-atom"></i> Física
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="quickBookSearch('programming')">
+                <i class="fa-solid fa-code"></i> Programación
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="quickBookSearch('chemistry')">
+                <i class="fa-solid fa-flask"></i> Química
+            </button>
+        </div>
+        
+        <div id="books-results-container" style="max-height: 400px; overflow-y: auto; display: none;"></div>
+    </div>
+</div>
+
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     
@@ -93,4 +144,128 @@
         </a>
     </div>
 </form>
+
+<script>
+function toggleBookSearch() {
+    const panel = document.getElementById('book-search-panel');
+    const icon = document.getElementById('book-search-icon');
+    if (panel.style.display === 'none') {
+        panel.style.display = 'block';
+        icon.style.transform = 'rotate(180deg)';
+    } else {
+        panel.style.display = 'none';
+        icon.style.transform = 'rotate(0deg)';
+    }
+}
+
+function quickBookSearch(topic) {
+    document.getElementById('book-search-query').value = topic;
+    searchBooksForResource();
+}
+
+async function searchBooksForResource() {
+    const container = document.getElementById('books-results-container');
+    const query = document.getElementById('book-search-query').value.trim();
+    const limit = document.getElementById('book-search-limit').value;
+    
+    if (!query) {
+        alert('Por favor ingresa un término de búsqueda');
+        return;
+    }
+    
+    container.innerHTML = '<div style="text-align: center; padding: 20px; color: #999;"><i class="fa-solid fa-spinner fa-spin"></i> Buscando libros...</div>';
+    container.style.display = 'block';
+    
+    try {
+        const response = await fetch(`/api/proxy/openlibrary/?q=${encodeURIComponent(query)}&limit=${limit}`);
+        const data = await response.json();
+        
+        if (data.error) throw new Error(data.error);
+        
+        if (!data.books || data.books.length === 0) {
+            container.innerHTML = '<div style="text-align: center; padding: 20px; color: #999;">No se encontraron libros. Intenta con otro término.</div>';
+            return;
+        }
+        
+        container.innerHTML = `
+            <div style="margin-bottom: 15px; padding: 10px; background: #f0f7ff; border-radius: 6px; font-size: 13px;">
+                <strong>${data.total_results}</strong> libros encontrados para "<strong>${data.query}</strong>"
+            </div>
+            <div style="display: grid; gap: 12px;">
+                ${data.books.map((book, index) => `
+                    <div style="padding: 15px; background: #f9f9fb; border-radius: 8px; border-left: 4px solid #7f7fd5;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                            <div style="flex: 1;">
+                                <h4 style="margin: 0 0 5px 0; color: #333; font-size: 15px;">${book.title}</h4>
+                                <p style="margin: 0; color: #666; font-size: 13px;"><i class="fa-solid fa-user"></i> ${book.author}</p>
+                            </div>
+                            <button class="btn btn-success btn-sm" onclick="useBookInfo(${index}, '${book.title.replace(/'/g, "\\'")}', '${book.author.replace(/'/g, "\\'")}', '${book.isbn}')" style="white-space: nowrap; margin-left: 10px;">
+                                <i class="fa-solid fa-plus"></i> Usar
+                            </button>
+                        </div>
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap; font-size: 12px; color: #666;">
+                            ${book.year !== 'N/A' ? `<span><i class="fa-solid fa-calendar"></i> ${book.year}</span>` : ''}
+                            ${book.pages !== 'N/A' ? `<span><i class="fa-solid fa-file"></i> ${book.pages} págs.</span>` : ''}
+                            ${book.isbn !== 'N/A' ? `<span><i class="fa-solid fa-barcode"></i> ISBN: ${book.isbn}</span>` : ''}
+                            ${book.subjects && book.subjects.length > 0 ? `<span><i class="fa-solid fa-tags"></i> ${book.subjects.slice(0, 2).join(', ')}</span>` : ''}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        
+        // Guardar datos para usar después
+        window.booksData = data.books;
+    } catch (error) {
+        container.innerHTML = `<div style="text-align: center; padding: 20px; color: #f44336;"><i class="fa-solid fa-exclamation-triangle"></i> Error: ${error.message}</div>`;
+    }
+}
+
+function useBookInfo(index, title, author, isbn) {
+    const descripcionField = document.getElementById('id_descripcion');
+    const tituloField = document.getElementById('id_titulo');
+    
+    // Agregar referencia bibliográfica a la descripción
+    const referencia = `\n\n📚 Referencia bibliográfica:\n${title} - ${author}${isbn !== 'N/A' ? ` (ISBN: ${isbn})` : ''}`;
+    
+    if (descripcionField) {
+        descripcionField.value = (descripcionField.value || '') + referencia;
+    }
+    
+    // Si el título está vacío, sugerir el título del libro
+    if (tituloField && !tituloField.value.trim()) {
+        tituloField.value = title;
+    }
+    
+    // Scroll al formulario
+    document.querySelector('form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    
+    // Mostrar mensaje de éxito
+    const btn = event.target.closest('button');
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Agregado!';
+    btn.style.background = '#4caf50';
+    setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.style.background = '';
+    }, 2000);
+}
+</script>
+
+<style>
+#book-search-panel {
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
 {% endblock %}

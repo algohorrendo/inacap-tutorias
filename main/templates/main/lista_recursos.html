@@ -61,6 +61,56 @@
 </div>
 {% endif %}
 
+<!-- Sección de búsqueda de libros recomendados -->
+{% if user.is_authenticated %}
+<div class="info-card" style="margin-top: 25px; background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%); border: 2px solid #7f7fd5;">
+    <h3 style="margin: 0 0 10px 0; color: #7f7fd5;">
+        <i class="fa-solid fa-book-open"></i> Buscar Libros Recomendados
+    </h3>
+    <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
+        Encuentra libros educativos que puedan complementar tu aprendizaje o que puedas recomendar como tutor.
+    </p>
+    
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
+        <input 
+            type="text" 
+            id="book-search-query-list" 
+            placeholder="Buscar por tema, título o autor..."
+            style="flex: 1; min-width: 250px; padding: 10px 15px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;"
+            onkeypress="if(event.key === 'Enter') searchBooksInList()"
+        />
+        <select id="book-search-limit-list" style="padding: 10px 15px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+            <option value="6">6 resultados</option>
+            <option value="10" selected>10 resultados</option>
+            <option value="15">15 resultados</option>
+        </select>
+        <button class="btn btn-primary" onclick="searchBooksInList()" style="white-space: nowrap;">
+            <i class="fa-solid fa-search"></i> Buscar
+        </button>
+    </div>
+    
+    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px;">
+        <button class="btn btn-secondary btn-sm" onclick="quickBookSearchList('mathematics')">
+            <i class="fa-solid fa-calculator"></i> Matemáticas
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="quickBookSearchList('physics')">
+            <i class="fa-solid fa-atom"></i> Física
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="quickBookSearchList('programming')">
+            <i class="fa-solid fa-code"></i> Programación
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="quickBookSearchList('chemistry')">
+            <i class="fa-solid fa-flask"></i> Química
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="quickBookSearchList('history')">
+            <i class="fa-solid fa-book"></i> Historia
+        </button>
+    </div>
+    
+    <div id="books-results-list" style="display: none;"></div>
+</div>
+{% endif %}
+
 {% if recursos %}
 <div class="info-grid">
     {% for recurso in recursos %}
@@ -132,6 +182,64 @@ window.onclick = function(event) {
     const modal = document.getElementById('contenido-modal');
     if (event.target === modal) {
         modal.style.display = 'none';
+    }
+}
+
+// Funciones para búsqueda de libros en lista de recursos
+function quickBookSearchList(topic) {
+    document.getElementById('book-search-query-list').value = topic;
+    searchBooksInList();
+}
+
+async function searchBooksInList() {
+    const container = document.getElementById('books-results-list');
+    const query = document.getElementById('book-search-query-list').value.trim();
+    const limit = document.getElementById('book-search-limit-list').value;
+    
+    if (!query) {
+        alert('Por favor ingresa un término de búsqueda');
+        return;
+    }
+    
+    container.innerHTML = '<div style="text-align: center; padding: 30px; color: #999;"><i class="fa-solid fa-spinner fa-spin"></i> Buscando libros...</div>';
+    container.style.display = 'block';
+    
+    try {
+        const response = await fetch(`/api/proxy/openlibrary/?q=${encodeURIComponent(query)}&limit=${limit}`);
+        const data = await response.json();
+        
+        if (data.error) throw new Error(data.error);
+        
+        if (!data.books || data.books.length === 0) {
+            container.innerHTML = '<div style="text-align: center; padding: 30px; color: #999;"><i class="fa-solid fa-inbox"></i> No se encontraron libros. Intenta con otro término.</div>';
+            return;
+        }
+        
+        container.innerHTML = `
+            <div style="margin-bottom: 20px; padding: 12px; background: #e8f5e9; border-radius: 6px; font-size: 14px; color: #2e7d32;">
+                <i class="fa-solid fa-check-circle"></i> <strong>${data.total_results}</strong> libros encontrados para "<strong>${data.query}</strong>"
+            </div>
+            <div class="info-grid">
+                ${data.books.map(book => `
+                    <div class="info-card" style="border-left: 4px solid #7f7fd5;">
+                        <div class="sesion-header">
+                            <h3 style="font-size: 15px; margin: 0;"><i class="fa-solid fa-book"></i> ${book.title.length > 50 ? book.title.substring(0, 50) + '...' : book.title}</h3>
+                        </div>
+                        <div class="sesion-body">
+                            <p><strong><i class="fa-solid fa-user"></i> Autor:</strong> ${book.author}</p>
+                            ${book.year !== 'N/A' ? `<p><strong><i class="fa-solid fa-calendar"></i> Año:</strong> ${book.year}</p>` : ''}
+                            ${book.pages !== 'N/A' ? `<p><strong><i class="fa-solid fa-file"></i> Páginas:</strong> ${book.pages}</p>` : ''}
+                            ${book.isbn !== 'N/A' ? `<p><strong><i class="fa-solid fa-barcode"></i> ISBN:</strong> ${book.isbn}</p>` : ''}
+                            ${book.subjects && book.subjects.length > 0 ? `
+                                <p><strong><i class="fa-solid fa-tags"></i> Temas:</strong> ${book.subjects.slice(0, 3).join(', ')}</p>
+                            ` : ''}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    } catch (error) {
+        container.innerHTML = `<div style="text-align: center; padding: 30px; color: #f44336;"><i class="fa-solid fa-exclamation-triangle"></i> Error: ${error.message}</div>`;
     }
 }
 </script>

@@ -88,37 +88,54 @@
 <!-- Tab: API Externa -->
 <div id="external-tab" class="tab-content">
     <div class="info-card" style="max-width: 100%; flex: 1 1 100%;">
-        <h3><i class="fa-solid fa-university"></i> API Externa - JSONPlaceholder</h3>
-        <p class="endpoint-label"><code>https://jsonplaceholder.typicode.com</code></p>
-        <p>Conexión a API REST externa para demostrar integración con servicios externos.</p>
+        <h3><i class="fa-solid fa-book"></i> API Externa - Open Library</h3>
+        <p class="endpoint-label"><code>https://openlibrary.org/search.json</code></p>
+        <p>API pública para buscar libros educativos. Permite a los tutores encontrar recursos bibliográficos para recomendar a estudiantes.</p>
         
-        <div class="sesion-actions">
-            <button class="btn btn-success" onclick="fetchExternalPosts()">
-                <i class="fa-solid fa-newspaper"></i> Posts
+        <div style="margin: 20px 0;">
+            <label for="book-search-query" style="display: block; margin-bottom: 8px; font-weight: 600;">
+                <i class="fa-solid fa-magnifying-glass"></i> Buscar libros por tema:
+            </label>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <input 
+                    type="text" 
+                    id="book-search-query" 
+                    placeholder="Ej: mathematics, physics, programming, history..."
+                    style="flex: 1; min-width: 200px; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px;"
+                    value="mathematics"
+                />
+                <select id="book-search-limit" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="5">5 resultados</option>
+                    <option value="10" selected>10 resultados</option>
+                    <option value="15">15 resultados</option>
+                    <option value="20">20 resultados</option>
+                </select>
+                <button class="btn btn-success" onclick="searchBooks()">
+                    <i class="fa-solid fa-search"></i> Buscar Libros
+                </button>
+            </div>
+        </div>
+        
+        <div class="sesion-actions" style="margin-top: 15px;">
+            <p style="font-size: 12px; color: #666; margin-bottom: 10px;">Búsquedas rápidas:</p>
+            <button class="btn btn-primary btn-sm" onclick="quickSearch('mathematics')">
+                <i class="fa-solid fa-calculator"></i> Matemáticas
             </button>
-            <button class="btn btn-info" onclick="fetchExternalUsers()">
-                <i class="fa-solid fa-users"></i> Usuarios
+            <button class="btn btn-primary btn-sm" onclick="quickSearch('physics')">
+                <i class="fa-solid fa-atom"></i> Física
             </button>
-            <button class="btn btn-primary" onclick="fetchExternalComments()">
-                <i class="fa-solid fa-comments"></i> Comentarios
+            <button class="btn btn-primary btn-sm" onclick="quickSearch('programming')">
+                <i class="fa-solid fa-code"></i> Programación
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="quickSearch('chemistry')">
+                <i class="fa-solid fa-flask"></i> Química
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="quickSearch('history')">
+                <i class="fa-solid fa-book-open"></i> Historia
             </button>
         </div>
         
-        <div id="external-result" class="external-result"></div>
-    </div>
-
-    <div class="info-card" style="max-width: 100%; flex: 1 1 100%; margin-top: 20px;">
-        <h3><i class="fa-solid fa-globe-americas"></i> API Externa - Países Sudamérica</h3>
-        <p class="endpoint-label"><code>https://restcountries.com/v3.1/region/south%20america</code></p>
-        <p>API pública que retorna información de países de Sudamérica.</p>
-        
-        <div class="sesion-actions">
-            <button class="btn btn-success" onclick="fetchCountries()">
-                <i class="fa-solid fa-flag"></i> Obtener Países de Sudamérica
-            </button>
-        </div>
-        
-        <div id="countries-result" class="external-result"></div>
+        <div id="books-result" class="external-result" style="margin-top: 20px;"></div>
     </div>
 </div>
 
@@ -514,94 +531,65 @@ async function fetchRecursos() {
     }
 }
 
-// External API Functions
+// External API Functions - Open Library
 // Usar proxy del backend para evitar CORS
-async function fetchExternalPosts() {
-    const container = document.getElementById('external-result');
-    container.innerHTML = '<div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Conectando via proxy...</div>';
+async function searchBooks() {
+    const container = document.getElementById('books-result');
+    const query = document.getElementById('book-search-query').value.trim();
+    const limit = document.getElementById('book-search-limit').value;
     
-    try {
-        const response = await fetch('/api/proxy/jsonplaceholder/posts/');
-        const data = await response.json();
-        
-        if (data.error) throw new Error(data.error);
-        
-        container.innerHTML = `
-            <div class="external-data">
-                <h4><i class="fa-solid fa-check-circle"></i> Conexión exitosa - ${data.length} posts obtenidos</h4>
-                <div class="json-preview"><pre>${JSON.stringify(data.slice(0, 5), null, 2)}</pre></div>
-            </div>
-        `;
-    } catch (error) {
-        container.innerHTML = '<p class="error-msg"><i class="fa-solid fa-exclamation-triangle"></i> Error: ' + error.message + '</p>';
+    if (!query) {
+        alert('Por favor ingresa un término de búsqueda');
+        return;
     }
-}
-
-async function fetchExternalUsers() {
-    const container = document.getElementById('external-result');
-    container.innerHTML = '<div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Conectando via proxy...</div>';
+    
+    container.innerHTML = '<div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Buscando libros...</div>';
     
     try {
-        const response = await fetch('/api/proxy/jsonplaceholder/users/');
+        const response = await fetch(`/api/proxy/openlibrary/?q=${encodeURIComponent(query)}&limit=${limit}`);
         const data = await response.json();
         
         if (data.error) throw new Error(data.error);
         
-        container.innerHTML = `
-            <div class="external-data">
-                <h4><i class="fa-solid fa-check-circle"></i> Conexión exitosa - ${data.length} usuarios obtenidos</h4>
-                <div class="json-preview"><pre>${JSON.stringify(data.slice(0, 5), null, 2)}</pre></div>
-            </div>
-        `;
-    } catch (error) {
-        container.innerHTML = '<p class="error-msg"><i class="fa-solid fa-exclamation-triangle"></i> Error: ' + error.message + '</p>';
-    }
-}
-
-async function fetchExternalComments() {
-    const container = document.getElementById('external-result');
-    container.innerHTML = '<div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Conectando via proxy...</div>';
-    
-    try {
-        const response = await fetch('/api/proxy/jsonplaceholder/comments/');
-        const data = await response.json();
-        
-        if (data.error) throw new Error(data.error);
+        if (!data.books || data.books.length === 0) {
+            container.innerHTML = `
+                <div class="external-data">
+                    <h4><i class="fa-solid fa-info-circle"></i> No se encontraron libros</h4>
+                    <p>Intenta con otro término de búsqueda.</p>
+                </div>
+            `;
+            return;
+        }
         
         container.innerHTML = `
             <div class="external-data">
-                <h4><i class="fa-solid fa-check-circle"></i> Conexión exitosa - ${data.length} comentarios obtenidos</h4>
-                <div class="json-preview"><pre>${JSON.stringify(data.slice(0, 5), null, 2)}</pre></div>
-            </div>
-        `;
-    } catch (error) {
-        container.innerHTML = '<p class="error-msg"><i class="fa-solid fa-exclamation-triangle"></i> Error: ' + error.message + '</p>';
-    }
-}
-
-async function fetchCountries() {
-    const container = document.getElementById('countries-result');
-    container.innerHTML = '<div class="loading"><i class="fa-solid fa-spinner fa-spin"></i> Conectando via proxy...</div>';
-    
-    try {
-        const response = await fetch('/api/proxy/countries/');
-        const data = await response.json();
-        
-        if (data.error) throw new Error(data.error);
-        
-        container.innerHTML = `
-            <div class="external-data">
-                <h4><i class="fa-solid fa-check-circle"></i> Conexión exitosa - ${data.length} países</h4>
-                <div class="universities-grid">
-                    ${data.map(country => `
-                        <div class="uni-item">
-                            <span>${country.flag} ${country.name.common}</span>
-                            <span>${country.capital ? country.capital[0] : 'N/A'}</span>
+                <h4><i class="fa-solid fa-check-circle"></i> ${data.total_results} libros encontrados para "${data.query}"</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; margin-top: 15px;">
+                    ${data.books.map(book => `
+                        <div class="data-item" style="background: white; border-left: 4px solid #7f7fd5;">
+                            <div class="item-header">
+                                <span class="item-name" style="font-size: 14px; font-weight: 600;">${book.title}</span>
+                            </div>
+                            <div class="item-details" style="margin-top: 10px; flex-direction: column; align-items: flex-start; gap: 5px;">
+                                <span><i class="fa-solid fa-user"></i> <strong>Autor:</strong> ${book.author}</span>
+                                ${book.year !== 'N/A' ? `<span><i class="fa-solid fa-calendar"></i> <strong>Año:</strong> ${book.year}</span>` : ''}
+                                ${book.pages !== 'N/A' ? `<span><i class="fa-solid fa-file"></i> <strong>Páginas:</strong> ${book.pages}</span>` : ''}
+                                ${book.isbn !== 'N/A' ? `<span><i class="fa-solid fa-barcode"></i> <strong>ISBN:</strong> ${book.isbn}</span>` : ''}
+                                ${book.subjects && book.subjects.length > 0 ? `
+                                    <span style="margin-top: 5px;">
+                                        <i class="fa-solid fa-tags"></i> 
+                                        <strong>Temas:</strong> ${book.subjects.slice(0, 3).join(', ')}
+                                    </span>
+                                ` : ''}
+                            </div>
                         </div>
                     `).join('')}
                 </div>
-                <div class="json-preview">
-                    <pre>${JSON.stringify(data.slice(0, 2), null, 2)}</pre>
+                <div class="json-preview" style="margin-top: 20px;">
+                    <details>
+                        <summary style="cursor: pointer; color: #7f7fd5; font-weight: 600; margin-bottom: 10px;">Ver respuesta JSON completa</summary>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </details>
                 </div>
             </div>
         `;
@@ -609,6 +597,24 @@ async function fetchCountries() {
         container.innerHTML = '<p class="error-msg"><i class="fa-solid fa-exclamation-triangle"></i> Error: ' + error.message + '</p>';
     }
 }
+
+// Búsqueda rápida por tema
+function quickSearch(topic) {
+    document.getElementById('book-search-query').value = topic;
+    searchBooks();
+}
+
+// Permitir búsqueda con Enter
+document.addEventListener('DOMContentLoaded', function() {
+    const queryInput = document.getElementById('book-search-query');
+    if (queryInput) {
+        queryInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchBooks();
+            }
+        });
+    }
+});
 
 // JSON Viewer Functions
 function showRawJson(type) {

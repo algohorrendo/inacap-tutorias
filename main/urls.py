@@ -37,8 +37,7 @@ urlpatterns = [
     path('api-client/', views.api_client, name='api_client'),
     
     # Proxy para APIs externas (evitar CORS)
-    path('api/proxy/countries/', views.proxy_countries, name='proxy_countries'),
-    path('api/proxy/jsonplaceholder/<str:endpoint>/', views.proxy_jsonplaceholder, name='proxy_jsonplaceholder'),
+    path('api/proxy/openlibrary/', views.proxy_openlibrary, name='proxy_openlibrary'),
     
     # Nuevas rutas admin
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),

@@ -37,8 +37,7 @@ Plataforma web completa para la gestión de tutorías académicas en INACAP. Per
 
 ### 🌐 Conexión API Externa
 - Cliente de API integrado
-- Conexión a JSONPlaceholder (API de pruebas)
-- Conexión a API de Universidades
+- Conexión a Open Library API (búsqueda de libros educativos)
 - Visualización de respuestas JSON
 
 ### 🎨 Panel de Administración
