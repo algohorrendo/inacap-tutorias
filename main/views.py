@@ -70,7 +70,7 @@ def proxy_openlibrary(request):
             params={
                 'q': query,
                 'limit': limit,
-                'fields': 'title,author_name,first_publish_year,subject,isbn,number_of_pages_median'
+                'fields': 'title,author_name,first_publish_year,subject,isbn,number_of_pages_median,key,cover_i'
             },
             timeout=10
         )
@@ -81,13 +81,23 @@ def proxy_openlibrary(request):
             books = []
             limit_count = int(limit)
             for doc in data.get('docs', [])[:limit_count]:
+                # Construir URL del libro en Open Library
+                book_key = doc.get('key', '')
+                book_url = f'https://openlibrary.org{book_key}' if book_key else None
+                
+                # Construir URL de la portada si existe
+                cover_id = doc.get('cover_i')
+                cover_url = f'https://covers.openlibrary.org/b/id/{cover_id}-M.jpg' if cover_id else None
+                
                 books.append({
                     'title': doc.get('title', 'Sin título'),
                     'author': doc.get('author_name', ['Autor desconocido'])[0] if doc.get('author_name') else 'Autor desconocido',
                     'year': doc.get('first_publish_year', 'N/A'),
                     'subjects': doc.get('subject', [])[:3],  # Primeros 3 temas
                     'isbn': doc.get('isbn', ['N/A'])[0] if doc.get('isbn') else 'N/A',
-                    'pages': doc.get('number_of_pages_median', 'N/A')
+                    'pages': doc.get('number_of_pages_median', 'N/A'),
+                    'url': book_url,
+                    'cover_url': cover_url
                 })
             
             return JsonResponse({

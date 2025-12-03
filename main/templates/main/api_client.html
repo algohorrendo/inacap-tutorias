@@ -569,6 +569,7 @@ async function searchBooks() {
                         <div class="data-item" style="background: white; border-left: 4px solid #7f7fd5;">
                             <div class="item-header">
                                 <span class="item-name" style="font-size: 14px; font-weight: 600;">${book.title}</span>
+                                ${book.url ? `<a href="${book.url}" target="_blank" class="btn btn-primary btn-sm" style="margin-left: 10px; white-space: nowrap;"><i class="fa-solid fa-external-link"></i> Ver</a>` : ''}
                             </div>
                             <div class="item-details" style="margin-top: 10px; flex-direction: column; align-items: flex-start; gap: 5px;">
                                 <span><i class="fa-solid fa-user"></i> <strong>Autor:</strong> ${book.author}</span>

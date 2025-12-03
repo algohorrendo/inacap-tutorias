@@ -234,6 +234,13 @@ async function searchBooksInList() {
                                 <p><strong><i class="fa-solid fa-tags"></i> Temas:</strong> ${book.subjects.slice(0, 3).join(', ')}</p>
                             ` : ''}
                         </div>
+                        ${book.url ? `
+                        <div class="sesion-actions">
+                            <a href="${book.url}" target="_blank" class="btn btn-primary btn-sm">
+                                <i class="fa-solid fa-external-link"></i> Ver en Open Library
+                            </a>
+                        </div>
+                        ` : ''}
                     </div>
                 `).join('')}
             </div>
